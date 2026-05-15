@@ -359,21 +359,21 @@ function ClockPanel({ now }: { now: Date }) {
       </p>
       <div
         suppressHydrationWarning
-        className="mx-auto mt-3 grid w-fit grid-cols-[2ch_0.45ch_2ch_0.45ch_2ch] items-end justify-center gap-x-1 font-mono text-[#ff9d1c] [font-variant-numeric:tabular-nums] sm:gap-x-3"
+        className="mt-3 flex items-baseline justify-center gap-2 font-mono text-[#ff9d1c] [font-variant-numeric:tabular-nums] sm:gap-4"
       >
-        <span className="text-right text-7xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
+        <span className="w-[2ch] text-right text-7xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
           {time.hour}
         </span>
-        <span className="pb-[0.1em] text-center text-6xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[8.5rem]">
+        <span className="text-6xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[8.5rem]">
           :
         </span>
-        <span className="text-right text-7xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
+        <span className="w-[2ch] text-right text-7xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
           {time.minute}
         </span>
-        <span className="pb-[0.18em] text-center text-4xl font-light leading-none sm:text-5xl md:text-6xl">
+        <span className="text-4xl font-light leading-none sm:text-5xl md:text-6xl">
           :
         </span>
-        <span className="pb-[0.18em] text-right text-4xl font-light leading-none sm:text-5xl md:text-6xl">
+        <span className="w-[2ch] text-right text-4xl font-light leading-none sm:text-5xl md:text-6xl">
           {time.second}
         </span>
       </div>
