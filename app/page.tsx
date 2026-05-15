@@ -2,7 +2,14 @@
 
 import { useEffect, useMemo, useReducer, useState } from "react";
 
-type AttendanceStatus = "before" | "working" | "away" | "finished";
+type AttendanceStatus =
+  | "before"
+  | "workingBeforeOuting1"
+  | "away1"
+  | "workingBeforeOuting2"
+  | "away2"
+  | "workingAfterOuting2"
+  | "finished";
 
 type Outing = {
   out?: string;
@@ -138,10 +145,15 @@ function getStatus(record?: AttendanceRecord): AttendanceStatus {
   if (!record?.clockIn) return "before";
   if (record.clockOut) return "finished";
 
-  const latestOuting = record.outings.at(-1);
-  if (latestOuting?.out && !latestOuting.back) return "away";
+  const firstOuting = record.outings[0];
+  const secondOuting = record.outings[1];
 
-  return "working";
+  if (!firstOuting?.out) return "workingBeforeOuting1";
+  if (!firstOuting.back) return "away1";
+  if (!secondOuting?.out) return "workingBeforeOuting2";
+  if (!secondOuting.back) return "away2";
+
+  return "workingAfterOuting2";
 }
 
 function upsertRecord(
@@ -235,7 +247,10 @@ function reducer(state: State, action: Action): State {
         ...state,
         records: upsertRecord(state.records, state.employeeCode, action.at, (record) => ({
           ...record,
-          outings: [...record.outings, { out: action.at.toISOString() }],
+          outings:
+            record.outings.length >= 2
+              ? record.outings
+              : [...record.outings, { out: action.at.toISOString() }],
         })),
         message: "外出を記録しました。",
       };
@@ -246,8 +261,8 @@ function reducer(state: State, action: Action): State {
         ...state,
         records: upsertRecord(state.records, state.employeeCode, action.at, (record) => ({
           ...record,
-          outings: record.outings.map((outing, index) =>
-            index === record.outings.length - 1
+          outings: record.outings.map((outing) =>
+            outing.out && !outing.back
               ? { ...outing, back: outing.back ?? action.at.toISOString() }
               : outing,
           ),
@@ -537,10 +552,10 @@ export default function Home() {
                     </ActionButton>
                   ) : null}
 
-                  {status === "working" ? (
+                  {status === "workingBeforeOuting1" ? (
                     <>
                       <ActionButton onClick={() => dispatch({ type: "goOut", at: new Date() })}>
-                        外出
+                        外出1
                       </ActionButton>
                       <ActionButton
                         tone="warning"
@@ -551,12 +566,44 @@ export default function Home() {
                     </>
                   ) : null}
 
-                  {status === "away" ? (
+                  {status === "away1" ? (
                     <ActionButton
                       tone="primary"
                       onClick={() => dispatch({ type: "returnBack", at: new Date() })}
                     >
-                      戻り
+                      外出戻り1
+                    </ActionButton>
+                  ) : null}
+
+                  {status === "workingBeforeOuting2" ? (
+                    <>
+                      <ActionButton onClick={() => dispatch({ type: "goOut", at: new Date() })}>
+                        外出2
+                      </ActionButton>
+                      <ActionButton
+                        tone="warning"
+                        onClick={() => dispatch({ type: "clockOut", at: new Date() })}
+                      >
+                        退勤
+                      </ActionButton>
+                    </>
+                  ) : null}
+
+                  {status === "away2" ? (
+                    <ActionButton
+                      tone="primary"
+                      onClick={() => dispatch({ type: "returnBack", at: new Date() })}
+                    >
+                      外出戻り2
+                    </ActionButton>
+                  ) : null}
+
+                  {status === "workingAfterOuting2" ? (
+                    <ActionButton
+                      tone="warning"
+                      onClick={() => dispatch({ type: "clockOut", at: new Date() })}
+                    >
+                      退勤
                     </ActionButton>
                   ) : null}
 
@@ -593,8 +640,10 @@ export default function Home() {
                         <th className="border border-zinc-500 px-3 py-2">コード</th>
                         <th className="border border-zinc-500 px-3 py-2">氏名</th>
                         <th className="border border-zinc-500 px-3 py-2">出勤</th>
-                        <th className="border border-zinc-500 px-3 py-2">外出</th>
-                        <th className="border border-zinc-500 px-3 py-2">戻り</th>
+                        <th className="border border-zinc-500 px-3 py-2">外出1</th>
+                        <th className="border border-zinc-500 px-3 py-2">戻り1</th>
+                        <th className="border border-zinc-500 px-3 py-2">外出2</th>
+                        <th className="border border-zinc-500 px-3 py-2">戻り2</th>
                         <th className="border border-zinc-500 px-3 py-2">退勤</th>
                         <th className="border border-zinc-500 px-3 py-2">時間</th>
                       </tr>
@@ -622,6 +671,12 @@ export default function Home() {
                               {displayTime(record.outings[0]?.back)}
                             </td>
                             <td className="border border-zinc-400 px-3 py-2">
+                              {displayTime(record.outings[1]?.out)}
+                            </td>
+                            <td className="border border-zinc-400 px-3 py-2">
+                              {displayTime(record.outings[1]?.back)}
+                            </td>
+                            <td className="border border-zinc-400 px-3 py-2">
                               {displayTime(record.clockOut)}
                             </td>
                             <td className="border border-zinc-400 px-3 py-2">
@@ -632,7 +687,7 @@ export default function Home() {
                       ) : (
                         <tr>
                           <td
-                            colSpan={8}
+                            colSpan={10}
                             className="border border-zinc-400 px-3 py-5 text-zinc-600"
                           >
                             本日の打刻はまだありません。
