@@ -360,8 +360,10 @@ function KeyButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex aspect-square min-h-16 items-center justify-center rounded-full border border-zinc-400 bg-zinc-100 text-3xl font-medium text-zinc-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.75),0_2px_5px_rgba(0,0,0,0.22)] transition active:translate-y-px active:shadow-sm disabled:cursor-not-allowed disabled:opacity-45 sm:min-h-20 sm:text-4xl lg:min-h-24 ${
-        variant === "control" ? "text-2xl sm:text-3xl" : ""
+      className={`flex aspect-square min-h-16 items-center justify-center rounded-full border border-zinc-400 bg-zinc-100 font-medium text-zinc-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.75),0_2px_5px_rgba(0,0,0,0.22)] transition active:translate-y-px active:shadow-sm disabled:cursor-not-allowed disabled:opacity-45 sm:min-h-20 lg:min-h-24 ${
+        variant === "control"
+          ? "text-4xl sm:text-5xl"
+          : "text-4xl sm:text-5xl lg:text-6xl"
       }`}
     >
       {children}
