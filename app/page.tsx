@@ -556,7 +556,6 @@ export default function Home() {
                       dispatch({ type: "setEmployeeCode", value: event.target.value })
                     }
                     className="w-full max-w-md rounded border-2 border-emerald-700 bg-emerald-50/90 px-4 py-3 text-center text-3xl font-semibold tracking-[0.2em] outline-none focus:border-zinc-950 sm:text-4xl"
-                    placeholder="7桁"
                     autoFocus
                   />
                 </div>
