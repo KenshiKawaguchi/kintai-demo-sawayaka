@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 勤怠管理デモ
 
-## Getting Started
+バイト先の勤怠管理画面を参考にした、Webブラウザ向けの勤怠打刻デモアプリです。
 
-First, run the development server:
+公開URL:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+https://kintai-demo-sawayaka.vercel.app
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 現在の目的
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+現時点では、本番運用向けの勤怠システムではなく、画面構成・操作感・状態遷移を確認するためのデモとして作成しています。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+PC、タブレット、スマートフォンのブラウザで操作できるようにしつつ、元の勤怠端末に近い以下の要素を再現しています。
 
-## Learn More
+- 緑色ベースの画面
+- 上部の店舗名表示
+- 大きな日付・時刻表示
+- 従業員コード入力
+- 丸型テンキー
+- 打刻ボタン
+- 当日の打刻履歴テーブル
+- 月次の勤怠確認画面
 
-To learn more about Next.js, take a look at the following resources:
+## 使用技術
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- TypeScript
+- Next.js App Router
+- React
+- Tailwind CSS
+- Vercel
+- localStorage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 画面構成
 
-## Deploy on Vercel
+### 従業員コード入力画面
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+最初に表示される画面です。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+従業員コードを7桁入力し、テンキーの「次」を押すと打刻画面に移動します。
+
+テンキーの「C」を押すと、入力中の従業員コードを全て削除します。
+
+### 打刻画面
+
+従業員コード入力後に表示される画面です。
+
+現在は従業員マスタを持っていないため、氏名は `未登録` として表示しています。
+
+打刻状態によって表示されるボタンが変わります。
+
+- 出勤前: `出勤`
+- 出勤中: `外出1`, `退勤`
+- 外出中: `外出戻り1`
+- 外出戻り後: `外出2`, `退勤`
+- 2回目の外出中: `外出戻り2`
+- 2回目の外出戻り後: `退勤`
+- 退勤後: `確認`, `当日打刻確認`, `クリア`
+
+外出は2回までです。外出3以降は作成していません。
+
+### 打刻完了ポップアップ
+
+`出勤`, `外出`, `外出戻り`, `退勤` を選択すると、画面中央にポップアップを表示します。
+
+ポップアップには以下を表示します。
+
+- 選択した打刻時刻
+- 打刻完了メッセージ
+- `閉じる` ボタン
+
+`閉じる` を押すと、従業員コード入力画面に戻ります。
+
+### 当日打刻履歴
+
+赤色の表には、現在入力している従業員コードの当日分のみを表示します。
+
+表示する項目は以下です。
+
+- 出勤日
+- 従業員コード
+- 氏名
+- 出勤
+- 外出1
+- 戻り1
+- 外出2
+- 戻り2
+- 退勤
+- 労働時間
+
+### 月次確認画面
+
+退勤後に `確認` を押すと、月次確認画面を表示します。
+
+月次確認画面では、選択中の従業員コードについて、当該月の勤怠履歴と月合計時間を確認できます。
+
+`前月` と `次月` のボタンで、過去月や翌月の勤怠も確認できます。
+
+## 保存方式
+
+現在はデータベースを使っていません。
+
+打刻データはブラウザの `localStorage` に保存しています。そのため、同じブラウザであれば再読み込み後も打刻履歴が残ります。
+
+ただし、`localStorage` はブラウザの検証ツールから編集できるため、本番運用向けの改ざん防止には向いていません。
+
+本番運用を想定する場合は、サーバー側で時刻を生成し、データベースに保存する構成へ変更する必要があります。
+
+## 現時点で未対応のもの
+
+- ログイン認証
+- 従業員マスタ管理
+- 管理者画面
+- データベース保存
+- 打刻修正申請
+- 修正履歴・監査ログ
+- 店舗端末制限
+- 本番向けの改ざん防止
+
+## 開発メモ
+
+通常の細かい変更は `develop` ブランチで作業し、確認後に `main` へマージします。
+
+READMEを編集する場合は `docs/readme` ブランチを使用し、そこでコミットした後に `main` へマージします。
+
+大幅な変更を行う場合は、別途作業ブランチを作成してから進めます。
