@@ -31,6 +31,8 @@ type StampModal = {
   message: string;
 };
 
+type ViewMode = "clock" | "monthly";
+
 type State = {
   employeeCode: string;
   isCodeSubmitted: boolean;
@@ -38,6 +40,8 @@ type State = {
   message: string;
   showTodayRecords: boolean;
   stampModal: StampModal | null;
+  viewMode: ViewMode;
+  selectedMonth: string;
 };
 
 type Action =
@@ -52,7 +56,9 @@ type Action =
   | { type: "clockOut"; at: Date }
   | { type: "goOut"; at: Date }
   | { type: "returnBack"; at: Date }
-  | { type: "confirm" }
+  | { type: "openMonthly"; month: string }
+  | { type: "closeMonthly" }
+  | { type: "moveMonth"; direction: -1 | 1 }
   | { type: "showTodayRecords" }
   | { type: "closeStampModal" };
 
@@ -67,6 +73,8 @@ const initialState: State = {
   message: "",
   showTodayRecords: true,
   stampModal: null,
+  viewMode: "clock",
+  selectedMonth: "",
 };
 
 function dateKey(date: Date) {
@@ -76,6 +84,20 @@ function dateKey(date: Date) {
     month: "2-digit",
     day: "2-digit",
   }).format(date);
+}
+
+function monthKey(date: Date) {
+  return dateKey(date).slice(0, 7);
+}
+
+function monthDate(month: string) {
+  return new Date(`${month}-01T00:00:00+09:00`);
+}
+
+function addMonths(month: string, amount: number) {
+  const date = monthDate(month);
+  date.setMonth(date.getMonth() + amount);
+  return monthKey(date);
 }
 
 function getTokyoParts(date: Date) {
@@ -110,6 +132,11 @@ function displayDate(date: Date) {
   return `${parts.year} 年 ${parts.month} 月 ${parts.day} 日 (${parts.weekday})`;
 }
 
+function displayMonth(month: string) {
+  const [year, rawMonth] = month.split("-");
+  return `${year} 年 ${Number(rawMonth)} 月`;
+}
+
 function displayLargeTime(date: Date) {
   const parts = getTokyoParts(date);
   return {
@@ -135,13 +162,29 @@ function displayStampTime(date: Date) {
   return `${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
-function displayDuration(record?: AttendanceRecord) {
+function getWorkedMinutes(record?: AttendanceRecord) {
   if (!record?.clockIn || !record.clockOut) return "";
 
-  const diffMs = new Date(record.clockOut).getTime() - new Date(record.clockIn).getTime();
+  const clockInMs = new Date(record.clockIn).getTime();
+  const clockOutMs = new Date(record.clockOut).getTime();
+  let diffMs = clockOutMs - clockInMs;
   if (diffMs <= 0) return "";
 
-  const totalMinutes = Math.floor(diffMs / 60000);
+  const outingMs = record.outings.reduce((total, outing) => {
+    if (!outing.out || !outing.back) return total;
+
+    const outMs = new Date(outing.out).getTime();
+    const backMs = new Date(outing.back).getTime();
+    return backMs > outMs ? total + (backMs - outMs) : total;
+  }, 0);
+  diffMs = Math.max(0, diffMs - outingMs);
+
+  return Math.floor(diffMs / 60000);
+}
+
+function formatMinutes(totalMinutes: number | "") {
+  if (totalMinutes === "") return "";
+
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   return `${hours.toString().padStart(2, "0")}:${minutes
@@ -149,10 +192,27 @@ function displayDuration(record?: AttendanceRecord) {
     .padStart(2, "0")}`;
 }
 
+function displayDuration(record?: AttendanceRecord) {
+  return formatMinutes(getWorkedMinutes(record));
+}
+
 function getCurrentRecord(records: AttendanceRecord[], employeeCode: string, today: string) {
   return records.find(
     (record) => record.employeeCode === employeeCode && record.date === today,
   );
+}
+
+function getMonthlyRecords(
+  records: AttendanceRecord[],
+  employeeCode: string,
+  selectedMonth: string,
+) {
+  return records
+    .filter(
+      (record) =>
+        record.employeeCode === employeeCode && record.date.startsWith(selectedMonth),
+    )
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function getStatus(record?: AttendanceRecord): AttendanceStatus {
@@ -228,6 +288,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         employeeCode: "",
         isCodeSubmitted: false,
+        viewMode: "clock",
         message: "入力をクリアしました。保存済みの打刻履歴は残っています。",
       };
 
@@ -320,8 +381,27 @@ function reducer(state: State, action: Action): State {
         },
       };
 
-    case "confirm":
-      return { ...state, message: "本日の打刻を確認しました。" };
+    case "openMonthly":
+      return {
+        ...state,
+        selectedMonth: action.month,
+        viewMode: "monthly",
+        message: "",
+      };
+
+    case "closeMonthly":
+      return {
+        ...state,
+        viewMode: "clock",
+        message: "",
+      };
+
+    case "moveMonth":
+      return {
+        ...state,
+        selectedMonth: addMonths(state.selectedMonth, action.direction),
+        message: "",
+      };
 
     case "showTodayRecords":
       return {
@@ -335,6 +415,7 @@ function reducer(state: State, action: Action): State {
         ...state,
         employeeCode: "",
         isCodeSubmitted: false,
+        viewMode: "clock",
         message: "",
         stampModal: null,
       };
@@ -511,6 +592,125 @@ function Keypad({
   );
 }
 
+function MonthlySummaryScreen({
+  employeeCode,
+  month,
+  records,
+  totalMinutes,
+  onPreviousMonth,
+  onNextMonth,
+  onBack,
+}: {
+  employeeCode: string;
+  month: string;
+  records: AttendanceRecord[];
+  totalMinutes: number;
+  onPreviousMonth: () => void;
+  onNextMonth: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <section className="flex flex-1 flex-col gap-4">
+      <div className="grid gap-4 rounded-sm bg-white/75 p-4 shadow-md lg:grid-cols-[1fr_auto] lg:items-center">
+        <div>
+          <p className="text-xl font-bold sm:text-2xl">勤怠確認</p>
+          <p className="mt-1 text-base font-semibold text-zinc-700 sm:text-lg">
+            従業員コード {employeeCode} / 氏名 {EMPLOYEE_NAME_PLACEHOLDER}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onBack}
+          className="min-h-12 rounded border border-zinc-500 bg-zinc-100 px-6 py-2 text-lg font-semibold shadow"
+        >
+          戻る
+        </button>
+      </div>
+
+      <div className="grid gap-4 rounded-sm bg-zinc-900/90 p-4 text-white shadow-lg md:grid-cols-[auto_1fr_auto] md:items-center">
+        <button
+          type="button"
+          onClick={onPreviousMonth}
+          className="min-h-12 rounded border border-zinc-500 bg-zinc-100 px-5 py-2 text-lg font-semibold text-zinc-950 shadow"
+        >
+          前月
+        </button>
+        <div className="text-center">
+          <p className="text-3xl font-bold sm:text-4xl">{displayMonth(month)}</p>
+          <p className="mt-2 text-xl font-semibold text-[#ff9d1c] sm:text-2xl">
+            月合計 {formatMinutes(totalMinutes)}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onNextMonth}
+          className="min-h-12 rounded border border-zinc-500 bg-zinc-100 px-5 py-2 text-lg font-semibold text-zinc-950 shadow"
+        >
+          次月
+        </button>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-[780px] border-collapse bg-white text-center text-sm shadow-md sm:text-base">
+          <thead>
+            <tr className="bg-[#d92913] text-white">
+              <th className="border border-zinc-500 px-3 py-2">出勤日</th>
+              <th className="border border-zinc-500 px-3 py-2">出勤</th>
+              <th className="border border-zinc-500 px-3 py-2">外出1</th>
+              <th className="border border-zinc-500 px-3 py-2">戻り1</th>
+              <th className="border border-zinc-500 px-3 py-2">外出2</th>
+              <th className="border border-zinc-500 px-3 py-2">戻り2</th>
+              <th className="border border-zinc-500 px-3 py-2">退勤</th>
+              <th className="border border-zinc-500 px-3 py-2">時間</th>
+            </tr>
+          </thead>
+          <tbody>
+            {records.length > 0 ? (
+              records.map((record) => (
+                <tr key={record.id}>
+                  <td className="border border-zinc-400 px-3 py-2">
+                    {record.date.replaceAll("-", "/")}
+                  </td>
+                  <td className="border border-zinc-400 px-3 py-2">
+                    {displayTime(record.clockIn)}
+                  </td>
+                  <td className="border border-zinc-400 px-3 py-2">
+                    {displayTime(record.outings[0]?.out)}
+                  </td>
+                  <td className="border border-zinc-400 px-3 py-2">
+                    {displayTime(record.outings[0]?.back)}
+                  </td>
+                  <td className="border border-zinc-400 px-3 py-2">
+                    {displayTime(record.outings[1]?.out)}
+                  </td>
+                  <td className="border border-zinc-400 px-3 py-2">
+                    {displayTime(record.outings[1]?.back)}
+                  </td>
+                  <td className="border border-zinc-400 px-3 py-2">
+                    {displayTime(record.clockOut)}
+                  </td>
+                  <td className="border border-zinc-400 px-3 py-2">
+                    {displayDuration(record)}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={8}
+                  className="border border-zinc-400 px-3 py-8 text-zinc-600"
+                >
+                  この月の勤怠はまだありません。
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [now, setNow] = useState(() => new Date());
@@ -542,9 +742,26 @@ export default function Home() {
   const status = getStatus(currentRecord);
   const isCodeReady = state.employeeCode.length === 7;
   const isClockScreen = state.isCodeSubmitted && isCodeReady;
+  const selectedMonth = state.selectedMonth || monthKey(now);
+  const isMonthlyScreen = isClockScreen && state.viewMode === "monthly";
   const todayRecords = useMemo(
-    () => state.records.filter((record) => record.date === today),
-    [state.records, today],
+    () =>
+      state.records.filter(
+        (record) => record.date === today && record.employeeCode === state.employeeCode,
+      ),
+    [state.employeeCode, state.records, today],
+  );
+  const monthlyRecords = useMemo(
+    () => getMonthlyRecords(state.records, state.employeeCode, selectedMonth),
+    [selectedMonth, state.employeeCode, state.records],
+  );
+  const monthlyTotalMinutes = useMemo(
+    () =>
+      monthlyRecords.reduce((total, record) => {
+        const workedMinutes = getWorkedMinutes(record);
+        return total + (workedMinutes === "" ? 0 : workedMinutes);
+      }, 0),
+    [monthlyRecords],
   );
 
   return (
@@ -554,7 +771,17 @@ export default function Home() {
           {STORE_NAME}
         </header>
 
-        {!isClockScreen ? (
+        {isMonthlyScreen ? (
+          <MonthlySummaryScreen
+            employeeCode={state.employeeCode}
+            month={selectedMonth}
+            records={monthlyRecords}
+            totalMinutes={monthlyTotalMinutes}
+            onPreviousMonth={() => dispatch({ type: "moveMonth", direction: -1 })}
+            onNextMonth={() => dispatch({ type: "moveMonth", direction: 1 })}
+            onBack={() => dispatch({ type: "closeMonthly" })}
+          />
+        ) : !isClockScreen ? (
           <section className="grid flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(300px,0.65fr)] xl:grid-cols-[minmax(0,2fr)_minmax(340px,0.7fr)]">
             <div className="flex min-w-0 flex-col gap-4">
               <ClockPanel now={now} />
@@ -697,7 +924,11 @@ export default function Home() {
 
                   {status === "finished" ? (
                     <>
-                      <ActionButton onClick={() => dispatch({ type: "confirm" })}>
+                      <ActionButton
+                        onClick={() =>
+                          dispatch({ type: "openMonthly", month: selectedMonth })
+                        }
+                      >
                         確認
                       </ActionButton>
                       <ActionButton onClick={() => dispatch({ type: "showTodayRecords" })}>
