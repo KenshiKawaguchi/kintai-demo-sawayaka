@@ -131,7 +131,7 @@ function displayTime(value?: string) {
 
 function displayStampTime(date: Date) {
   const parts = getTokyoParts(date);
-  return `${parts.hour}:${parts.minute}:${parts.second}`;
+  return `${parts.hour} ${parts.minute} ${parts.second}`;
 }
 
 function displayDuration(record?: AttendanceRecord) {
@@ -414,7 +414,7 @@ function StampCompleteModal({
       aria-label="打刻完了"
     >
       <div className="w-full max-w-md rounded bg-zinc-200/60 px-6 py-7 text-center text-zinc-950 shadow-2xl backdrop-blur-sm sm:px-8">
-        <p className="font-mono text-4xl font-semibold [font-variant-numeric:tabular-nums] sm:text-5xl">
+        <p className="[font-family:var(--font-clock),Arial,sans-serif] text-4xl font-normal [font-variant-numeric:tabular-nums] sm:text-5xl">
           {modal.time}
         </p>
         <p className="mt-6 text-2xl font-bold sm:text-3xl">{modal.message}</p>
@@ -443,10 +443,13 @@ function ClockPanel({ now }: { now: Date }) {
       </p>
       <div
         suppressHydrationWarning
-        className="mt-3 flex items-baseline justify-center gap-3 font-mono text-[#ff9d1c] [font-variant-numeric:tabular-nums] sm:gap-5"
+        className="mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-baseline justify-center gap-3 text-center text-[#ff9d1c] [font-family:var(--font-clock),Arial,sans-serif] [font-variant-numeric:tabular-nums] sm:gap-5"
       >
         <span className="text-7xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
-          {time.hour}:{time.minute}
+          {time.hour}
+        </span>
+        <span className="text-7xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
+          {time.minute}
         </span>
         <span className="text-4xl font-light leading-none sm:text-5xl md:text-6xl">
           {time.second}
