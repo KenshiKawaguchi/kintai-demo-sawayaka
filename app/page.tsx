@@ -131,7 +131,7 @@ function displayTime(value?: string) {
 
 function displayStampTime(date: Date) {
   const parts = getTokyoParts(date);
-  return `${parts.hour} ${parts.minute} ${parts.second}`;
+  return `${parts.hour}:${parts.minute}:${parts.second}`;
 }
 
 function displayDuration(record?: AttendanceRecord) {
@@ -443,15 +443,21 @@ function ClockPanel({ now }: { now: Date }) {
       </p>
       <div
         suppressHydrationWarning
-        className="mt-3 grid grid-cols-[max-content_max-content_max-content] items-baseline justify-center gap-4 text-center text-[#ff9d1c] [font-family:var(--font-clock),Arial,sans-serif] [font-variant-numeric:tabular-nums] sm:gap-6"
+        className="mt-3 grid grid-cols-[max-content_max-content_max-content_max-content_max-content] items-baseline justify-center gap-1 text-center text-[#ff9d1c] [font-family:var(--font-clock),Arial,sans-serif] [font-variant-numeric:tabular-nums] sm:gap-2"
       >
-        <span className="text-7xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
+        <span className="text-7xl font-normal leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
           {time.hour}
         </span>
-        <span className="text-7xl font-light leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
+        <span className="text-6xl font-normal leading-none sm:text-7xl md:text-8xl lg:text-[8rem]">
+          :
+        </span>
+        <span className="text-7xl font-normal leading-none sm:text-8xl md:text-9xl lg:text-[9.5rem]">
           {time.minute}
         </span>
-        <span className="text-4xl font-light leading-none sm:text-5xl md:text-6xl">
+        <span className="text-4xl font-normal leading-none sm:text-5xl md:text-6xl">
+          :
+        </span>
+        <span className="text-4xl font-normal leading-none sm:text-5xl md:text-6xl">
           {time.second}
         </span>
       </div>
