@@ -466,11 +466,13 @@ function ActionButton({
   onClick,
   disabled,
   tone = "default",
+  size = "default",
 }: {
   children: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   tone?: "default" | "primary" | "warning";
+  size?: "default" | "stamp";
 }) {
   const toneClass =
     tone === "primary"
@@ -478,13 +480,17 @@ function ActionButton({
       : tone === "warning"
         ? "border-orange-600 bg-white text-orange-900"
         : "border-zinc-400 bg-zinc-100 text-zinc-900";
+  const sizeClass =
+    size === "stamp"
+      ? "min-h-20 min-w-40 px-7 py-4 text-2xl sm:min-h-20 sm:min-w-44 sm:text-2xl"
+      : "min-h-14 min-w-28 px-5 py-3 text-lg sm:min-h-16 sm:min-w-36 sm:text-xl";
 
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`min-h-14 min-w-28 rounded border px-5 py-3 text-lg font-semibold shadow-[0_2px_5px_rgba(0,0,0,0.25)] transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 sm:min-h-16 sm:min-w-36 sm:text-xl ${toneClass}`}
+      className={`rounded border font-semibold shadow-[0_2px_5px_rgba(0,0,0,0.25)] transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 ${sizeClass} ${toneClass}`}
     >
       {children}
     </button>
@@ -861,6 +867,7 @@ export default function Home() {
                   {status === "before" ? (
                     <ActionButton
                       tone="primary"
+                      size="stamp"
                       onClick={() => dispatch({ type: "clockIn", at: new Date() })}
                     >
                       出勤
@@ -869,11 +876,15 @@ export default function Home() {
 
                   {status === "workingBeforeOuting1" ? (
                     <>
-                      <ActionButton onClick={() => dispatch({ type: "goOut", at: new Date() })}>
+                      <ActionButton
+                        size="stamp"
+                        onClick={() => dispatch({ type: "goOut", at: new Date() })}
+                      >
                         外出1
                       </ActionButton>
                       <ActionButton
                         tone="warning"
+                        size="stamp"
                         onClick={() => dispatch({ type: "clockOut", at: new Date() })}
                       >
                         退勤
@@ -892,11 +903,15 @@ export default function Home() {
 
                   {status === "workingBeforeOuting2" ? (
                     <>
-                      <ActionButton onClick={() => dispatch({ type: "goOut", at: new Date() })}>
+                      <ActionButton
+                        size="stamp"
+                        onClick={() => dispatch({ type: "goOut", at: new Date() })}
+                      >
                         外出2
                       </ActionButton>
                       <ActionButton
                         tone="warning"
+                        size="stamp"
                         onClick={() => dispatch({ type: "clockOut", at: new Date() })}
                       >
                         退勤
@@ -916,6 +931,7 @@ export default function Home() {
                   {status === "workingAfterOuting2" ? (
                     <ActionButton
                       tone="warning"
+                      size="stamp"
                       onClick={() => dispatch({ type: "clockOut", at: new Date() })}
                     >
                       退勤
