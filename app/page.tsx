@@ -482,11 +482,11 @@ function ActionButton({
         : "border-zinc-400 bg-zinc-100 text-zinc-900";
   const sizeClass =
     size === "clockIn"
-      ? "h-24 w-full px-6 py-4 text-2xl sm:h-28 sm:text-3xl lg:h-32"
+      ? "min-h-14 w-full px-5 py-3 text-lg sm:min-h-16 sm:text-xl"
       : size === "outing"
-        ? "h-20 w-1/3 min-w-0 px-2 py-3 text-xl sm:h-24 sm:text-2xl lg:h-28"
+        ? "min-h-14 w-1/3 min-w-0 px-2 py-3 text-lg sm:min-h-16 sm:text-xl"
         : size === "clockOut"
-          ? "h-24 w-full px-6 py-4 text-2xl sm:h-28 sm:text-3xl lg:h-32"
+          ? "min-h-14 w-full px-5 py-3 text-lg sm:min-h-16 sm:text-xl"
           : size === "confirm"
             ? "min-h-14 w-full px-3 py-3 text-base sm:min-h-16 sm:text-lg lg:text-xl"
             : "min-h-14 min-w-28 px-5 py-3 text-lg sm:min-h-16 sm:min-w-36 sm:text-xl";
