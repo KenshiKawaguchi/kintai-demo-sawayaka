@@ -1023,12 +1023,10 @@ export default function Home() {
             <section>
               {state.showTodayRecords ? (
                 <div className="overflow-x-auto">
-                  <table className="min-w-[1120px] border-collapse bg-white text-center text-sm shadow-md sm:text-base">
+                  <table className="min-w-[980px] border-collapse bg-white text-center text-sm shadow-md sm:text-base">
                     <thead>
                       <tr className="bg-[#d92913] text-white">
                         <th className="border border-zinc-500 px-3 py-2">出勤日</th>
-                        <th className="border border-zinc-500 px-3 py-2">コード</th>
-                        <th className="border border-zinc-500 px-3 py-2">氏名</th>
                         <th className="border border-zinc-500 px-3 py-2">出勤</th>
                         <th className="border border-zinc-500 px-3 py-2">外出1</th>
                         <th className="border border-zinc-500 px-3 py-2">戻り1</th>
@@ -1046,12 +1044,6 @@ export default function Home() {
                           <tr key={record.id}>
                             <td className="border border-zinc-400 px-3 py-2">
                               {record.date.replaceAll("-", "/")}
-                            </td>
-                            <td className="border border-zinc-400 px-3 py-2">
-                              {record.employeeCode}
-                            </td>
-                            <td className="border border-zinc-400 px-3 py-2">
-                              {record.employeeName}
                             </td>
                             <td className="border border-zinc-400 px-3 py-2">
                               {displayTime(record.clockIn)}
@@ -1085,7 +1077,7 @@ export default function Home() {
                       ) : (
                         <tr>
                           <td
-                            colSpan={12}
+                            colSpan={10}
                             className="border border-zinc-400 px-3 py-5 text-zinc-600"
                           >
                             本日の打刻はまだありません。
