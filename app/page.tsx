@@ -472,7 +472,7 @@ function ActionButton({
   onClick: () => void;
   disabled?: boolean;
   tone?: "default" | "primary" | "warning";
-  size?: "default" | "clockIn" | "outing" | "clockOut";
+  size?: "default" | "clockIn" | "outing" | "clockOut" | "confirm";
 }) {
   const toneClass =
     tone === "primary"
@@ -482,19 +482,21 @@ function ActionButton({
         : "border-zinc-400 bg-zinc-100 text-zinc-900";
   const sizeClass =
     size === "clockIn"
-      ? "h-24 w-48 px-6 py-4 text-2xl sm:h-28 sm:w-56 sm:text-3xl lg:h-32 lg:w-64"
+      ? "h-24 w-full px-6 py-4 text-2xl sm:h-28 sm:text-3xl lg:h-32"
       : size === "outing"
-        ? "h-20 w-44 px-5 py-3 text-2xl sm:h-24 sm:w-52 sm:text-3xl lg:h-28 lg:w-56"
+        ? "h-20 w-1/3 min-w-0 px-2 py-3 text-xl sm:h-24 sm:text-2xl lg:h-28"
         : size === "clockOut"
-          ? "h-24 w-56 px-6 py-4 text-2xl sm:h-28 sm:w-64 sm:text-3xl lg:h-32 lg:w-72"
-      : "min-h-14 min-w-28 px-5 py-3 text-lg sm:min-h-16 sm:min-w-36 sm:text-xl";
+          ? "h-24 w-full px-6 py-4 text-2xl sm:h-28 sm:text-3xl lg:h-32"
+          : size === "confirm"
+            ? "min-h-14 w-full px-3 py-3 text-base sm:min-h-16 sm:text-lg lg:text-xl"
+            : "min-h-14 min-w-28 px-5 py-3 text-lg sm:min-h-16 sm:min-w-36 sm:text-xl";
 
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`rounded border font-semibold shadow-[0_2px_5px_rgba(0,0,0,0.25)] transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 ${sizeClass} ${toneClass}`}
+      className={`whitespace-nowrap rounded border font-semibold shadow-[0_2px_5px_rgba(0,0,0,0.25)] transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 ${sizeClass} ${toneClass}`}
     >
       {children}
     </button>
@@ -544,8 +546,8 @@ function ClockActionButtons({
   const isFinished = status === "finished";
 
   return (
-    <div className="flex w-full max-w-[560px] flex-col items-center gap-8 lg:max-w-[320px] lg:items-end lg:gap-14 lg:pt-20">
-      <div className="flex flex-wrap justify-center gap-4 lg:flex-col lg:items-end lg:gap-7">
+    <div className="flex w-full max-w-[520px] flex-col items-center gap-8 lg:max-w-[320px] lg:gap-14 lg:pt-20">
+      <div className="flex w-full flex-col items-center gap-4 lg:gap-7">
         {status === "before" ? (
           <ActionButton
             tone="primary"
@@ -623,6 +625,7 @@ function ClockActionButtons({
 
       <div className="grid w-full max-w-[520px] grid-cols-2 gap-3 lg:max-w-[320px]">
         <ActionButton
+          size="confirm"
           onClick={
             isFinished
               ? () => dispatch({ type: "openMonthly", month: selectedMonth })
@@ -632,6 +635,7 @@ function ClockActionButtons({
           確認
         </ActionButton>
         <ActionButton
+          size="confirm"
           onClick={isFinished ? () => dispatch({ type: "showTodayRecords" }) : () => undefined}
         >
           当日打刻確認
