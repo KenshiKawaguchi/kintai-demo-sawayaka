@@ -650,8 +650,8 @@ function ClockActionButtons({
         ) : null}
 
         {isFinished ? (
-          <p className="w-full text-center text-base font-semibold text-zinc-950 sm:text-lg lg:text-xl">
-            ※本日の打刻は終了しています
+          <p className="w-full text-center text-base font-bold text-zinc-950 sm:text-lg lg:text-xl">
+            ※本日の打刻は終了しています。
           </p>
         ) : null}
       </div>
