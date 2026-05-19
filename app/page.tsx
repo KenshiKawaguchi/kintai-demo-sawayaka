@@ -1006,13 +1006,6 @@ export default function Home() {
 
               <section className="space-y-5">
                 <div className="space-y-2">
-                  <p className="text-xl font-semibold sm:text-2xl">従業員コード</p>
-                  <p className="w-full max-w-md rounded border-2 border-emerald-700 bg-emerald-50/80 px-4 py-3 text-center text-3xl font-semibold tracking-[0.2em] sm:text-4xl">
-                    {state.employeeCode}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
                   <p className="text-xl font-semibold sm:text-2xl">氏名</p>
                   <p className="min-h-12 text-2xl font-semibold sm:text-3xl">
                     {EMPLOYEE_NAME_PLACEHOLDER}
