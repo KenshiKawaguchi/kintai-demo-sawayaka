@@ -1012,6 +1012,13 @@ export default function Home() {
                   </p>
                 </div>
 
+                <div className="space-y-2">
+                  <p className="text-xl font-semibold sm:text-2xl">氏名</p>
+                  <p className="min-h-12 text-2xl font-semibold sm:text-3xl">
+                    {EMPLOYEE_NAME_PLACEHOLDER}
+                  </p>
+                </div>
+
                 {state.message ? (
                   <p className="max-w-2xl rounded bg-white/70 px-4 py-3 text-base font-semibold text-zinc-900 shadow-sm sm:text-lg">
                     {state.message}
