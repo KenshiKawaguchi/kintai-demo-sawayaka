@@ -550,7 +550,6 @@ function ClockActionButtons({
       <div className="flex w-full flex-col items-center gap-4 lg:gap-7">
         {status === "before" ? (
           <ActionButton
-            tone="primary"
             size="clockIn"
             onClick={() => dispatch({ type: "clockIn", at: new Date() })}
           >
@@ -567,7 +566,6 @@ function ClockActionButtons({
               外出1
             </ActionButton>
             <ActionButton
-              tone="warning"
               size="clockOut"
               onClick={() => dispatch({ type: "clockOut", at: new Date() })}
             >
@@ -594,7 +592,6 @@ function ClockActionButtons({
               外出2
             </ActionButton>
             <ActionButton
-              tone="warning"
               size="clockOut"
               onClick={() => dispatch({ type: "clockOut", at: new Date() })}
             >
@@ -614,7 +611,6 @@ function ClockActionButtons({
 
         {status === "workingAfterOuting2" ? (
           <ActionButton
-            tone="warning"
             size="clockOut"
             onClick={() => dispatch({ type: "clockOut", at: new Date() })}
           >
