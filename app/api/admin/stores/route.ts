@@ -15,9 +15,9 @@ function jsonError(message: string, status: number) {
   return NextResponse.json({ ok: false, message }, { status });
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    await requireAdminUser();
+    await requireAdminUser(request);
     const { data, error } = await createSupabaseAdminClient()
       .from("stores")
       .select("id, name, created_at, updated_at")
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await requireAdminUser();
+    await requireAdminUser(request);
     const now = new Date().toISOString();
     const { data, error } = await createSupabaseAdminClient()
       .from("stores")

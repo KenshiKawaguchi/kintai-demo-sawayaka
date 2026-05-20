@@ -41,9 +41,9 @@ function employeeSelect() {
   `;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    await requireAdminUser();
+    await requireAdminUser(request);
     const { data, error } = await createSupabaseAdminClient()
       .from("employees")
       .select(employeeSelect())
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await requireAdminUser();
+    await requireAdminUser(request);
     const now = new Date().toISOString();
     const { data, error } = await createSupabaseAdminClient()
       .from("employees")
@@ -97,7 +97,7 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    await requireAdminUser();
+    await requireAdminUser(request);
     const now = new Date().toISOString();
     const { data, error } = await createSupabaseAdminClient()
       .from("employees")
