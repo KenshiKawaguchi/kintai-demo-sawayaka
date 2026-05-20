@@ -497,11 +497,11 @@ function ActionButton({
         : "border-zinc-400 bg-zinc-100 text-zinc-900";
   const sizeClass =
     size === "clockIn"
-      ? "min-h-14 w-full px-5 py-3 text-2xl sm:min-h-16 sm:text-3xl"
+      ? "min-h-14 w-full px-5 py-3 text-3xl sm:min-h-16 sm:text-4xl"
       : size === "outing"
-        ? "min-h-14 w-1/3 min-w-0 px-2 py-3 text-lg sm:min-h-16 sm:text-xl"
+        ? "min-h-14 w-[40%] min-w-0 px-2 py-3 text-lg sm:min-h-16 sm:text-xl"
         : size === "clockOut"
-          ? "min-h-14 w-full px-5 py-3 text-2xl sm:min-h-16 sm:text-3xl"
+          ? "min-h-14 w-full px-5 py-3 text-3xl sm:min-h-16 sm:text-4xl"
           : size === "confirm"
             ? "min-h-14 w-full px-3 py-3 text-base sm:min-h-16 sm:text-lg lg:text-xl"
             : "min-h-14 min-w-28 px-5 py-3 text-lg sm:min-h-16 sm:min-w-36 sm:text-xl";
@@ -643,7 +643,7 @@ function ClockActionButtons({
             size="clockIn"
             onClick={() => dispatch({ type: "clockIn", at: new Date() })}
           >
-            出勤
+            出　勤
           </ActionButton>
         ) : null}
 
@@ -653,13 +653,13 @@ function ClockActionButtons({
               size="outing"
               onClick={() => dispatch({ type: "goOut", at: new Date() })}
             >
-              外出
+              外　出
             </ActionButton>
             <ActionButton
               size="clockOut"
               onClick={() => dispatch({ type: "clockOut", at: new Date() })}
             >
-              退勤
+              退　勤
             </ActionButton>
           </>
         ) : null}
@@ -678,13 +678,13 @@ function ClockActionButtons({
               size="outing"
               onClick={() => dispatch({ type: "goOut", at: new Date() })}
             >
-              外出
+              外　出
             </ActionButton>
             <ActionButton
               size="clockOut"
               onClick={() => dispatch({ type: "clockOut", at: new Date() })}
             >
-              退勤
+              退　勤
             </ActionButton>
           </>
         ) : null}
@@ -703,13 +703,13 @@ function ClockActionButtons({
               size="outing"
               onClick={() => dispatch({ type: "goOut", at: new Date() })}
             >
-              外出
+              外　出
             </ActionButton>
             <ActionButton
               size="clockOut"
               onClick={() => dispatch({ type: "clockOut", at: new Date() })}
             >
-              退勤
+              退　勤
             </ActionButton>
           </>
         ) : null}
@@ -727,7 +727,7 @@ function ClockActionButtons({
             size="clockOut"
             onClick={() => dispatch({ type: "clockOut", at: new Date() })}
           >
-            退勤
+            退　勤
           </ActionButton>
         ) : null}
 
@@ -747,7 +747,7 @@ function ClockActionButtons({
               : () => undefined
           }
         >
-          確認
+          確　認
         </ActionButton>
         <ActionButton
           size="confirm"
