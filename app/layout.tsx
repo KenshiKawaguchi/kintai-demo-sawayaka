@@ -21,7 +21,7 @@ const roboto = Roboto({
 const robotoCondensed = Roboto_Condensed({
   variable: "--font-popup-time",
   subsets: ["latin"],
-  weight: ["700"],
+  weight: ["500"],
 });
 
 export const metadata: Metadata = {
