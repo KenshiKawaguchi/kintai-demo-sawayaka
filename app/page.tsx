@@ -549,6 +549,8 @@ function StampCompleteModal({
       buttonText: "text-blue-700",
     },
   }[modal.variant];
+  const actionLabelColorClass =
+    modal.variant === "outing" ? "text-zinc-950" : colorClass.text;
 
   return (
     <div
@@ -576,7 +578,7 @@ function StampCompleteModal({
             {modal.employeeName}さんの打刻を行いました。
           </p>
           <p
-            className={`${colorClass.text} mt-7 text-4xl font-bold tracking-normal sm:mt-9 sm:text-6xl`}
+            className={`${actionLabelColorClass} mt-7 text-4xl font-bold tracking-normal sm:mt-9 sm:text-6xl`}
           >
             {formatModalActionLabel(modal.actionLabel)}
           </p>
@@ -591,7 +593,7 @@ function StampCompleteModal({
           <button
             type="button"
             onClick={onClose}
-            className={`min-h-20 w-full max-w-[672px] rounded-full border border-white bg-white px-12 py-4 text-3xl font-bold shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition active:translate-y-px sm:min-h-24 sm:text-4xl ${colorClass.buttonText}`}
+            className={`min-h-20 w-full max-w-[672px] rounded-full border border-white bg-white px-12 py-2 text-5xl font-bold leading-none shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition active:translate-y-px sm:min-h-24 sm:text-6xl ${colorClass.buttonText}`}
           >
             閉じる
           </button>
