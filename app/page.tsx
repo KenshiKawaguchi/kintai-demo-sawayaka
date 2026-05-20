@@ -570,27 +570,27 @@ function StampCompleteModal({
 
         <div className={`h-12 w-full ${colorClass.bar}`} />
 
-        <div className="px-5 py-8 sm:px-12 sm:py-10">
+        <div className="px-5 pb-2 pt-3 sm:px-12 sm:pb-3 sm:pt-4">
           <p className={`${colorClass.text} text-xl font-bold sm:text-3xl`}>
             {modal.employeeName}さんの打刻を行いました。
           </p>
           <p
-            className={`${colorClass.text} mt-7 text-4xl font-bold tracking-normal sm:mt-9 sm:text-6xl`}
+            className={`${colorClass.text} mt-5 text-4xl font-bold tracking-normal sm:mt-6 sm:text-6xl`}
           >
             {formatModalActionLabel(modal.actionLabel)}
           </p>
           <p
-            className={`${colorClass.text} mt-5 [font-family:var(--font-popup-time),'Arial_Narrow','Roboto_Condensed',Arial,sans-serif] text-6xl font-bold leading-none [font-variant-numeric:tabular-nums] sm:text-8xl`}
+            className={`${colorClass.text} mt-3 [font-family:var(--font-popup-time),'Arial_Narrow','Roboto_Condensed',Arial,sans-serif] text-6xl font-medium leading-none [font-variant-numeric:tabular-nums] sm:mt-4 sm:text-8xl`}
           >
             {modal.time}
           </p>
         </div>
 
-        <div className={`px-5 py-3 sm:px-12 sm:py-4 ${colorClass.bar}`}>
+        <div className={`px-5 py-4 sm:px-12 sm:py-6 ${colorClass.bar}`}>
           <button
             type="button"
             onClick={onClose}
-            className={`min-h-20 w-full max-w-[672px] rounded-full border border-white bg-white px-12 py-2 text-5xl font-bold leading-none shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition active:translate-y-px sm:min-h-24 sm:text-6xl ${colorClass.buttonText}`}
+            className={`min-h-24 w-full max-w-[672px] rounded-full border border-white bg-white px-12 py-2 text-6xl font-bold leading-none shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition active:translate-y-px sm:min-h-32 sm:text-7xl ${colorClass.buttonText}`}
           >
             閉じる
           </button>
