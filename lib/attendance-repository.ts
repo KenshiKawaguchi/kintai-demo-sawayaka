@@ -9,6 +9,7 @@ export type AttendancePunchType =
 
 type EmployeeRow = {
   id: string;
+  store_id?: string;
   employee_code: string;
   name: string;
   active: boolean;
@@ -48,6 +49,16 @@ export type PunchAttendanceResult = {
     eventType: AttendancePunchType;
     occurredAt: string;
   };
+};
+
+export type AttendanceSnapshotResult = {
+  employee: {
+    id: string;
+    employeeCode: string;
+    name: string;
+  };
+  record: AttendanceRecordRow | null;
+  outings: AttendanceOutingRow[];
 };
 
 export class AttendanceRepositoryError extends Error {
@@ -97,6 +108,49 @@ async function createAttendanceEvent(
   });
 
   if (error) throw error;
+}
+
+export async function getAttendanceSnapshot(
+  supabase: SupabaseClient,
+  {
+    employeeCode,
+    workDate,
+  }: {
+    employeeCode: string;
+    workDate: string;
+  },
+): Promise<AttendanceSnapshotResult> {
+  const { data: employee, error: employeeError } = await supabase
+    .from("employees")
+    .select("id, employee_code, name, active")
+    .eq("employee_code", employeeCode)
+    .maybeSingle();
+
+  if (employeeError) throw employeeError;
+  assertKnownEmployee(employee as EmployeeRow | null);
+
+  const typedEmployee = employee as EmployeeRow;
+  const { data: record, error: recordError } = await supabase
+    .from("attendance_records")
+    .select("*")
+    .eq("employee_id", typedEmployee.id)
+    .eq("work_date", workDate)
+    .maybeSingle();
+
+  if (recordError) throw recordError;
+
+  const typedRecord = record as AttendanceRecordRow | null;
+  const outings = typedRecord ? await getCurrentOutings(supabase, typedRecord.id) : [];
+
+  return {
+    employee: {
+      id: typedEmployee.id,
+      employeeCode: typedEmployee.employee_code,
+      name: typedEmployee.name,
+    },
+    record: typedRecord,
+    outings,
+  };
 }
 
 export async function punchAttendance(

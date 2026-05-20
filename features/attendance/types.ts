@@ -35,6 +35,7 @@ export type ViewMode = "clock" | "monthly";
 
 export type State = {
   employeeCode: string;
+  employeeName: string;
   isCodeSubmitted: boolean;
   records: AttendanceRecord[];
   message: string;
@@ -52,6 +53,12 @@ export type Action =
   | { type: "clearInput" }
   | { type: "setEmployeeCode"; value: string }
   | { type: "submitCode" }
+  | {
+      type: "submitEmployee";
+      employeeCode: string;
+      employeeName: string;
+      record?: AttendanceRecord;
+    }
   | { type: "clockIn"; at: Date; employeeName?: string }
   | { type: "clockOut"; at: Date; employeeName?: string }
   | { type: "goOut"; at: Date; employeeName?: string }

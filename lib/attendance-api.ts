@@ -28,6 +28,32 @@ type PunchAttendanceResponse = {
   };
 };
 
+type AttendanceSnapshotResponse = {
+  ok: boolean;
+  message?: string;
+  data?: {
+    employee: {
+      id: string;
+      employeeCode: string;
+      name: string;
+    };
+    record: {
+      id: string;
+      employee_id: string;
+      work_date: string;
+      clock_in_at: string | null;
+      clock_out_at: string | null;
+    } | null;
+    outings: {
+      id: string;
+      attendance_record_id: string;
+      outing_index: number;
+      out_at: string | null;
+      back_at: string | null;
+    }[];
+  };
+};
+
 const punchTypeMap = {
   clockIn: "clock_in",
   goOut: "go_out",
@@ -71,9 +97,36 @@ export async function punchAttendanceApi({
   return body.data;
 }
 
-export function toAttendanceRecord(
-  data: NonNullable<PunchAttendanceResponse["data"]>,
-): AttendanceRecord {
+export async function fetchAttendanceSnapshotApi({
+  employeeCode,
+  date,
+}: {
+  employeeCode: string;
+  date: string;
+}) {
+  const params = new URLSearchParams({ employeeCode, date });
+  const response = await fetch(`/api/attendance?${params.toString()}`);
+  const body = (await response.json().catch(() => null)) as
+    | AttendanceSnapshotResponse
+    | null;
+
+  if (!response.ok || !body?.ok || !body.data) {
+    throw new AttendanceApiError(body?.message ?? "打刻状況の取得に失敗しました。");
+  }
+
+  return body.data;
+}
+
+export function toAttendanceRecord(data: {
+  employee: {
+    employeeCode: string;
+    name: string;
+  };
+  record: NonNullable<AttendanceSnapshotResponse["data"]>["record"];
+  outings: NonNullable<AttendanceSnapshotResponse["data"]>["outings"];
+}): AttendanceRecord | undefined {
+  if (!data.record) return undefined;
+
   return {
     id: `${data.record.work_date}-${data.employee.employeeCode}`,
     employeeCode: data.employee.employeeCode,

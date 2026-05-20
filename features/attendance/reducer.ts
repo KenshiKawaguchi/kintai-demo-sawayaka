@@ -4,6 +4,7 @@ import type { Action, AttendanceRecord, AttendanceStatus, State } from "./types"
 
 export const initialState: State = {
   employeeCode: "",
+  employeeName: EMPLOYEE_NAME_PLACEHOLDER,
   isCodeSubmitted: false,
   records: [],
   message: "",
@@ -88,6 +89,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: `${state.employeeCode}${action.digit}`,
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
       };
@@ -96,6 +98,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: state.employeeCode.slice(0, -1),
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
       };
@@ -104,6 +107,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: "",
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
       };
@@ -112,6 +116,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: "",
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         viewMode: "clock",
         message: "入力をクリアしました。保存済みの打刻履歴は残っています。",
@@ -121,6 +126,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: action.value.replace(/\D/g, "").slice(0, 7),
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
       };
@@ -153,6 +159,25 @@ export function reducer(state: State, action: Action): State {
         message: "",
       };
 
+    case "submitEmployee":
+      return {
+        ...state,
+        employeeCode: action.employeeCode,
+        employeeName: action.employeeName,
+        isCodeSubmitted: true,
+        message: "",
+        records: action.record
+          ? [
+              ...state.records.filter((record) => record.id !== action.record?.id),
+              action.record,
+            ].sort((a, b) => a.date.localeCompare(b.date))
+          : state.records.filter(
+              (record) =>
+                record.employeeCode !== action.employeeCode ||
+                record.date !== dateKey(new Date()),
+            ),
+      };
+
     case "clockIn":
       if (state.employeeCode.length !== 7) return state;
       const clockInEmployeeName = action.employeeName ?? EMPLOYEE_NAME_PLACEHOLDER;
@@ -162,6 +187,7 @@ export function reducer(state: State, action: Action): State {
           ...record,
           clockIn: record.clockIn ?? action.at.toISOString(),
         }), clockInEmployeeName),
+        employeeName: clockInEmployeeName,
         message: "出勤を記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
@@ -183,6 +209,7 @@ export function reducer(state: State, action: Action): State {
               ? record.outings
               : [...record.outings, { out: action.at.toISOString() }],
         }), goOutEmployeeName),
+        employeeName: goOutEmployeeName,
         message: "外出を記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
@@ -205,6 +232,7 @@ export function reducer(state: State, action: Action): State {
               : outing,
           ),
         }), returnBackEmployeeName),
+        employeeName: returnBackEmployeeName,
         message: "戻りを記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
@@ -223,6 +251,7 @@ export function reducer(state: State, action: Action): State {
           ...record,
           clockOut: record.clockOut ?? action.at.toISOString(),
         }), clockOutEmployeeName),
+        employeeName: clockOutEmployeeName,
         message: "退勤を記録しました。",
         showTodayRecords: true,
         stampModal: {
@@ -266,6 +295,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: "",
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         viewMode: "clock",
         message: "",
