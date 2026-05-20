@@ -30,7 +30,9 @@ type AttendanceRecord = {
 
 type StampModal = {
   time: string;
-  message: string;
+  actionLabel: "出勤" | "外出" | "外出戻り" | "退勤";
+  variant: "clockIn" | "outing" | "clockOut";
+  employeeName: string;
 };
 
 type ViewMode = "clock" | "monthly";
@@ -329,7 +331,9 @@ function reducer(state: State, action: Action): State {
         message: "出勤を記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
-          message: "出勤しました",
+          actionLabel: "出勤",
+          variant: "clockIn",
+          employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         },
       };
 
@@ -347,7 +351,9 @@ function reducer(state: State, action: Action): State {
         message: "外出を記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
-          message: "外出しました",
+          actionLabel: "外出",
+          variant: "outing",
+          employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         },
       };
 
@@ -366,7 +372,9 @@ function reducer(state: State, action: Action): State {
         message: "戻りを記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
-          message: "外出戻りしました",
+          actionLabel: "外出戻り",
+          variant: "outing",
+          employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         },
       };
 
@@ -382,7 +390,9 @@ function reducer(state: State, action: Action): State {
         showTodayRecords: true,
         stampModal: {
           time: displayStampTime(action.at),
-          message: "退勤しました",
+          actionLabel: "退勤",
+          variant: "clockOut",
+          employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         },
       };
 
@@ -508,6 +518,13 @@ function ActionButton({
   );
 }
 
+function formatModalActionLabel(actionLabel: StampModal["actionLabel"]) {
+  if (actionLabel.length === 2) {
+    return `${actionLabel[0]}　${actionLabel[1]}`;
+  }
+  return actionLabel;
+}
+
 function StampCompleteModal({
   modal,
   onClose,
@@ -515,25 +532,70 @@ function StampCompleteModal({
   modal: StampModal;
   onClose: () => void;
 }) {
+  const colorClass = {
+    clockIn: {
+      text: "text-orange-500",
+      bar: "bg-orange-500",
+      buttonText: "text-orange-600",
+    },
+    outing: {
+      text: "text-green-600",
+      bar: "bg-green-600",
+      buttonText: "text-green-700",
+    },
+    clockOut: {
+      text: "text-blue-600",
+      bar: "bg-blue-600",
+      buttonText: "text-blue-700",
+    },
+  }[modal.variant];
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-700/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-700/60 p-3 [font-family:'MS_Gothic','ＭＳ_ゴシック',monospace] sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label="打刻完了"
     >
-      <div className="w-full max-w-md rounded bg-zinc-200/60 px-6 py-7 text-center text-zinc-950 shadow-2xl backdrop-blur-sm sm:px-8">
-        <p className="[font-family:var(--font-clock),Arial,sans-serif] text-4xl font-normal [font-variant-numeric:tabular-nums] sm:text-5xl">
-          {modal.time}
-        </p>
-        <p className="mt-6 text-2xl font-bold sm:text-3xl">{modal.message}</p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="mt-7 min-h-14 min-w-36 rounded-none border border-zinc-500 bg-zinc-100/60 px-8 py-3 text-xl font-semibold text-zinc-950 shadow-[0_2px_5px_rgba(0,0,0,0.25)] transition active:translate-y-px [font-family:'MS_Gothic','ＭＳ_ゴシック',monospace]"
-        >
-          閉じる
-        </button>
+      <div className="w-full max-w-[760px] overflow-hidden rounded-[2px] border border-zinc-400 bg-white text-center shadow-2xl">
+        <div className="flex min-h-11 items-center justify-end bg-white px-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-2xl leading-none text-zinc-700 shadow-sm transition hover:bg-zinc-200 active:translate-y-px"
+            aria-label="閉じる"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className={`h-6 w-full ${colorClass.bar}`} />
+
+        <div className="px-5 py-8 sm:px-12 sm:py-10">
+          <p className={`${colorClass.text} text-xl font-bold sm:text-3xl`}>
+            {modal.employeeName}さんの打刻を行いました。
+          </p>
+          <p
+            className={`${colorClass.text} mt-7 text-5xl font-bold tracking-normal sm:mt-9 sm:text-7xl`}
+          >
+            {formatModalActionLabel(modal.actionLabel)}
+          </p>
+          <p
+            className={`${colorClass.text} mt-5 [font-family:var(--font-clock),'MS_Gothic','ＭＳ_ゴシック',monospace] text-5xl font-semibold [font-variant-numeric:tabular-nums] sm:text-7xl`}
+          >
+            {modal.time}
+          </p>
+        </div>
+
+        <div className={`px-5 py-7 sm:px-12 sm:py-9 ${colorClass.bar}`}>
+          <button
+            type="button"
+            onClick={onClose}
+            className={`min-h-14 min-w-44 rounded-full border border-white bg-white px-10 py-3 text-xl font-bold shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition active:translate-y-px sm:min-h-16 sm:min-w-56 sm:text-2xl ${colorClass.buttonText}`}
+          >
+            閉じる
+          </button>
+        </div>
       </div>
     </div>
   );
