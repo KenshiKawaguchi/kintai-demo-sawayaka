@@ -135,10 +135,44 @@ const STORAGE_KEY = "attendance-clock-v1-records";
 
 ```text
 app/
-  globals.css       共通CSS、フォント、ベーススタイル
-  layout.tsx        Next.jsメタデータとルートレイアウト
-  page.tsx          勤怠画面本体、状態管理、localStorage処理
-package.json        npm scriptsと依存関係
+  globals.css                    共通CSS、フォント、ベーススタイル
+  layout.tsx                     Next.jsメタデータとルートレイアウト
+  page.tsx                       画面全体の組み立て、hooks、画面切り替え
+
+components/
+  ActionButtons.tsx              出勤、外出、退勤、確認、クリアの操作ボタン群
+  ClockPanel.tsx                 日付、時刻パネル
+  Keypad.tsx                     従業員コード入力用テンキー
+  StampModal.tsx                 打刻完了ポップアップ
+  TodayTable.tsx                 当日打刻表
+
+features/
+  attendance/
+    constants.ts                 店舗名、仮従業員名などの定数
+    date.ts                      日付、時刻表示、労働時間計算
+    reducer.ts                   勤怠状態遷移、打刻処理、画面状態管理
+    types.ts                     勤怠レコード、状態、Actionなどの型
+
+lib/
+  attendance-storage.ts          localStorageの読み書き処理
+
+package.json                     npm scriptsと依存関係
+```
+
+`app/page.tsx` は、現在の状態、画面切り替え、各コンポーネントの配置を担当します。勤怠の状態遷移や保存処理は `features/attendance/` と `lib/` に分離しています。
+
+DB導入時は、まず `lib/attendance-storage.ts` の責務をDB向けrepositoryへ置き換える想定です。候補名は `lib/attendance-repository.ts` です。
+
+```text
+現在:
+  page.tsx
+    -> lib/attendance-storage.ts
+      -> localStorage
+
+DB導入後:
+  page.tsx または app/api/*
+    -> lib/attendance-repository.ts
+      -> Database
 ```
 
 ## 開発コマンド
