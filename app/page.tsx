@@ -525,6 +525,32 @@ function formatModalActionLabel(actionLabel: StampModal["actionLabel"]) {
   return actionLabel;
 }
 
+function SquareColon() {
+  return (
+    <span className="mx-1 inline-flex translate-y-[-0.03em] flex-col items-center justify-center gap-[0.18em] sm:mx-2">
+      <span className="block size-[0.12em] bg-current" />
+      <span className="block size-[0.12em] bg-current" />
+    </span>
+  );
+}
+
+function PopupTime({ time }: { time: string }) {
+  const [hour = "", minute = "", second = ""] = time.split(":");
+
+  return (
+    <span
+      className="mt-3 flex items-center justify-center [font-family:var(--font-popup-time),'Arial_Narrow','Roboto_Condensed',Arial,sans-serif] text-6xl font-medium leading-none [font-variant-numeric:tabular-nums] sm:mt-4 sm:text-8xl"
+      aria-label={time}
+    >
+      <span>{hour}</span>
+      <SquareColon />
+      <span>{minute}</span>
+      <SquareColon />
+      <span>{second}</span>
+    </span>
+  );
+}
+
 function StampCompleteModal({
   modal,
   onClose,
@@ -579,11 +605,9 @@ function StampCompleteModal({
           >
             {formatModalActionLabel(modal.actionLabel)}
           </p>
-          <p
-            className={`${colorClass.text} mt-3 [font-family:var(--font-popup-time),'Arial_Narrow','Roboto_Condensed',Arial,sans-serif] text-6xl font-medium leading-none [font-variant-numeric:tabular-nums] sm:mt-4 sm:text-8xl`}
-          >
-            {modal.time}
-          </p>
+          <div className={colorClass.text}>
+            <PopupTime time={modal.time} />
+          </div>
         </div>
 
         <div className={`px-5 py-4 sm:px-12 sm:py-6 ${colorClass.bar}`}>
@@ -644,7 +668,7 @@ function ClockActionButtons({
           <ActionButton
             onClick={() => dispatch({ type: "returnBack", at: new Date() })}
           >
-            外出戻り1
+            外出戻り
           </ActionButton>
         ) : null}
 
@@ -669,7 +693,7 @@ function ClockActionButtons({
           <ActionButton
             onClick={() => dispatch({ type: "returnBack", at: new Date() })}
           >
-            外出戻り2
+            外出戻り
           </ActionButton>
         ) : null}
 
@@ -694,7 +718,7 @@ function ClockActionButtons({
           <ActionButton
             onClick={() => dispatch({ type: "returnBack", at: new Date() })}
           >
-            外出戻り3
+            外出戻り
           </ActionButton>
         ) : null}
 
