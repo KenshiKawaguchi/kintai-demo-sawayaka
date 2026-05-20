@@ -119,7 +119,7 @@ export function reducer(state: State, action: Action): State {
         employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         viewMode: "clock",
-        message: "入力をクリアしました。保存済みの打刻履歴は残っています。",
+        message: "",
       };
 
     case "setEmployeeCode":
