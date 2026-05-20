@@ -4,6 +4,7 @@ import type { Action, AttendanceRecord, AttendanceStatus, State } from "./types"
 
 export const initialState: State = {
   employeeCode: "",
+  employeeName: EMPLOYEE_NAME_PLACEHOLDER,
   isCodeSubmitted: false,
   records: [],
   message: "",
@@ -59,6 +60,7 @@ function upsertRecord(
   employeeCode: string,
   at: Date,
   update: (record: AttendanceRecord) => AttendanceRecord,
+  employeeName = EMPLOYEE_NAME_PLACEHOLDER,
 ) {
   const today = dateKey(at);
   const id = `${today}-${employeeCode}`;
@@ -66,11 +68,11 @@ function upsertRecord(
   const base: AttendanceRecord = existing ?? {
     id,
     employeeCode,
-    employeeName: EMPLOYEE_NAME_PLACEHOLDER,
+    employeeName,
     date: today,
     outings: [],
   };
-  const nextRecord = update(base);
+  const nextRecord = { ...update(base), employeeName };
 
   if (!existing) return [...records, nextRecord];
 
@@ -87,6 +89,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: `${state.employeeCode}${action.digit}`,
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
       };
@@ -95,6 +98,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: state.employeeCode.slice(0, -1),
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
       };
@@ -103,6 +107,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: "",
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
       };
@@ -111,6 +116,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: "",
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         viewMode: "clock",
         message: "入力をクリアしました。保存済みの打刻履歴は残っています。",
@@ -120,8 +126,24 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: action.value.replace(/\D/g, "").slice(0, 7),
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
+      };
+
+    case "setMessage":
+      return {
+        ...state,
+        message: action.message,
+      };
+
+    case "replaceRecord":
+      return {
+        ...state,
+        records: [
+          ...state.records.filter((record) => record.id !== action.record.id),
+          action.record,
+        ].sort((a, b) => a.date.localeCompare(b.date)),
       };
 
     case "submitCode":
@@ -137,25 +159,47 @@ export function reducer(state: State, action: Action): State {
         message: "",
       };
 
+    case "submitEmployee":
+      return {
+        ...state,
+        employeeCode: action.employeeCode,
+        employeeName: action.employeeName,
+        isCodeSubmitted: true,
+        message: "",
+        records: action.record
+          ? [
+              ...state.records.filter((record) => record.id !== action.record?.id),
+              action.record,
+            ].sort((a, b) => a.date.localeCompare(b.date))
+          : state.records.filter(
+              (record) =>
+                record.employeeCode !== action.employeeCode ||
+                record.date !== dateKey(new Date()),
+            ),
+      };
+
     case "clockIn":
       if (state.employeeCode.length !== 7) return state;
+      const clockInEmployeeName = action.employeeName ?? EMPLOYEE_NAME_PLACEHOLDER;
       return {
         ...state,
         records: upsertRecord(state.records, state.employeeCode, action.at, (record) => ({
           ...record,
           clockIn: record.clockIn ?? action.at.toISOString(),
-        })),
+        }), clockInEmployeeName),
+        employeeName: clockInEmployeeName,
         message: "出勤を記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
           actionLabel: "出勤",
           variant: "clockIn",
-          employeeName: EMPLOYEE_NAME_PLACEHOLDER,
+          employeeName: clockInEmployeeName,
         },
       };
 
     case "goOut":
       if (state.employeeCode.length !== 7) return state;
+      const goOutEmployeeName = action.employeeName ?? EMPLOYEE_NAME_PLACEHOLDER;
       return {
         ...state,
         records: upsertRecord(state.records, state.employeeCode, action.at, (record) => ({
@@ -164,18 +208,20 @@ export function reducer(state: State, action: Action): State {
             record.outings.length >= 3
               ? record.outings
               : [...record.outings, { out: action.at.toISOString() }],
-        })),
+        }), goOutEmployeeName),
+        employeeName: goOutEmployeeName,
         message: "外出を記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
           actionLabel: "外出",
           variant: "outing",
-          employeeName: EMPLOYEE_NAME_PLACEHOLDER,
+          employeeName: goOutEmployeeName,
         },
       };
 
     case "returnBack":
       if (state.employeeCode.length !== 7) return state;
+      const returnBackEmployeeName = action.employeeName ?? EMPLOYEE_NAME_PLACEHOLDER;
       return {
         ...state,
         records: upsertRecord(state.records, state.employeeCode, action.at, (record) => ({
@@ -185,31 +231,34 @@ export function reducer(state: State, action: Action): State {
               ? { ...outing, back: outing.back ?? action.at.toISOString() }
               : outing,
           ),
-        })),
+        }), returnBackEmployeeName),
+        employeeName: returnBackEmployeeName,
         message: "戻りを記録しました。",
         stampModal: {
           time: displayStampTime(action.at),
           actionLabel: "外出戻り",
           variant: "outing",
-          employeeName: EMPLOYEE_NAME_PLACEHOLDER,
+          employeeName: returnBackEmployeeName,
         },
       };
 
     case "clockOut":
       if (state.employeeCode.length !== 7) return state;
+      const clockOutEmployeeName = action.employeeName ?? EMPLOYEE_NAME_PLACEHOLDER;
       return {
         ...state,
         records: upsertRecord(state.records, state.employeeCode, action.at, (record) => ({
           ...record,
           clockOut: record.clockOut ?? action.at.toISOString(),
-        })),
+        }), clockOutEmployeeName),
+        employeeName: clockOutEmployeeName,
         message: "退勤を記録しました。",
         showTodayRecords: true,
         stampModal: {
           time: displayStampTime(action.at),
           actionLabel: "退勤",
           variant: "clockOut",
-          employeeName: EMPLOYEE_NAME_PLACEHOLDER,
+          employeeName: clockOutEmployeeName,
         },
       };
 
@@ -246,6 +295,7 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         employeeCode: "",
+        employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         viewMode: "clock",
         message: "",

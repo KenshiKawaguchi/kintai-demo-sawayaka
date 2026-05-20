@@ -25,9 +25,12 @@ import {
 } from "@/features/attendance/reducer";
 import type { AttendanceRecord } from "@/features/attendance/types";
 import {
-  readAttendanceRecords,
-  writeAttendanceRecords,
-} from "@/lib/attendance-storage";
+  AttendanceApiError,
+  fetchAttendanceSnapshotApi,
+  type PunchActionType,
+  punchAttendanceApi,
+  toAttendanceRecord,
+} from "@/lib/attendance-api";
 
 function MonthlySummaryScreen({
   employeeCode,
@@ -159,25 +162,15 @@ function MonthlySummaryScreen({
 export default function Home() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [now, setNow] = useState(() => new Date());
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [isSubmittingCode, setIsSubmittingCode] = useState(false);
 
   useEffect(() => {
-    const startup = window.setTimeout(() => {
-      dispatch({ type: "hydrate", records: readAttendanceRecords() });
-      setIsHydrated(true);
-    }, 0);
     const timer = window.setInterval(() => setNow(new Date()), 1000);
 
     return () => {
-      window.clearTimeout(startup);
       window.clearInterval(timer);
     };
   }, []);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    writeAttendanceRecords(state.records);
-  }, [isHydrated, state.records]);
 
   const today = useMemo(() => dateKey(now ?? new Date()), [now]);
   const currentRecord = useMemo(
@@ -208,6 +201,67 @@ export default function Home() {
       }, 0),
     [monthlyRecords],
   );
+
+  async function handlePunch(actionType: PunchActionType) {
+    const at = new Date();
+
+    try {
+      const data = await punchAttendanceApi({
+        employeeCode: state.employeeCode,
+        actionType,
+        at,
+      });
+      const record = toAttendanceRecord(data);
+
+      dispatch({
+        type: actionType,
+        at,
+        employeeName: data.employee.name,
+      });
+      if (record) {
+        dispatch({ type: "replaceRecord", record });
+      }
+    } catch (error) {
+      dispatch({
+        type: "setMessage",
+        message:
+          error instanceof AttendanceApiError
+            ? error.message
+            : "打刻処理に失敗しました。",
+      });
+    }
+  }
+
+  async function handleSubmitCode() {
+    if (!isCodeReady || isSubmittingCode) {
+      dispatch({ type: "submitCode" });
+      return;
+    }
+
+    setIsSubmittingCode(true);
+    try {
+      const data = await fetchAttendanceSnapshotApi({
+        employeeCode: state.employeeCode,
+        date: today,
+      });
+      dispatch({
+        type: "submitEmployee",
+        employeeCode: data.employee.employeeCode,
+        employeeName: data.employee.name,
+        record: toAttendanceRecord(data),
+      });
+    } catch (error) {
+      dispatch({
+        type: "setMessage",
+        message:
+          error instanceof AttendanceApiError
+            ? error.message
+            : "従業員情報の取得に失敗しました。",
+      });
+    } finally {
+      setIsSubmittingCode(false);
+    }
+  }
 
   return (
     <main className="min-h-dvh bg-[#00df08] text-zinc-950">
@@ -270,7 +324,7 @@ export default function Home() {
                 digitDisabled={state.employeeCode.length >= 7}
                 onDigit={(digit) => dispatch({ type: "appendDigit", digit })}
                 onBackspace={() => dispatch({ type: "clearCode" })}
-                onNext={() => dispatch({ type: "submitCode" })}
+                onNext={() => void handleSubmitCode()}
               />
             </div>
           </section>
@@ -283,14 +337,14 @@ export default function Home() {
                 <div className="space-y-2">
                   <p className="text-xl font-semibold sm:text-2xl">従業員コード</p>
                   <p className="min-h-12 text-2xl font-semibold sm:text-3xl">
-                    {EMPLOYEE_NAME_PLACEHOLDER}
+                    {state.employeeName}
                   </p>
                 </div>
 
                 <div className="space-y-2">
                   <p className="text-xl font-semibold sm:text-2xl">氏名</p>
                   <p className="min-h-12 text-2xl font-semibold sm:text-3xl">
-                    {EMPLOYEE_NAME_PLACEHOLDER}
+                    {state.employeeName}
                   </p>
                 </div>
 
@@ -313,6 +367,10 @@ export default function Home() {
                 status={status}
                 selectedMonth={selectedMonth}
                 dispatch={dispatch}
+                onClockIn={() => void handlePunch("clockIn")}
+                onGoOut={() => void handlePunch("goOut")}
+                onReturnBack={() => void handlePunch("returnBack")}
+                onClockOut={() => void handlePunch("clockOut")}
               />
             </aside>
           </section>

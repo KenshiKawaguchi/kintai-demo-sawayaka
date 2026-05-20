@@ -47,10 +47,18 @@ export function ClockActionButtons({
   status,
   selectedMonth,
   dispatch,
+  onClockIn,
+  onGoOut,
+  onReturnBack,
+  onClockOut,
 }: {
   status: AttendanceStatus;
   selectedMonth: string;
   dispatch: (action: Action) => void;
+  onClockIn: () => void;
+  onGoOut: () => void;
+  onReturnBack: () => void;
+  onClockOut: () => void;
 }) {
   const isFinished = status === "finished";
 
@@ -58,10 +66,7 @@ export function ClockActionButtons({
     <div className="flex w-full max-w-[520px] flex-col items-center gap-8 lg:max-w-[320px] lg:gap-14 lg:pt-20">
       <div className="flex min-h-[8rem] w-full flex-col items-center justify-center gap-4 sm:min-h-[9rem] lg:min-h-[9.75rem] lg:gap-7">
         {status === "before" ? (
-          <ActionButton
-            size="clockIn"
-            onClick={() => dispatch({ type: "clockIn", at: new Date() })}
-          >
+          <ActionButton size="clockIn" onClick={onClockIn}>
             出　勤
           </ActionButton>
         ) : null}
@@ -70,13 +75,13 @@ export function ClockActionButtons({
           <>
             <ActionButton
               size="outing"
-              onClick={() => dispatch({ type: "goOut", at: new Date() })}
+              onClick={onGoOut}
             >
               外　出
             </ActionButton>
             <ActionButton
               size="clockOut"
-              onClick={() => dispatch({ type: "clockOut", at: new Date() })}
+              onClick={onClockOut}
             >
               退　勤
             </ActionButton>
@@ -84,9 +89,7 @@ export function ClockActionButtons({
         ) : null}
 
         {status === "away1" ? (
-          <ActionButton
-            onClick={() => dispatch({ type: "returnBack", at: new Date() })}
-          >
+          <ActionButton onClick={onReturnBack}>
             外出戻り
           </ActionButton>
         ) : null}
@@ -95,13 +98,13 @@ export function ClockActionButtons({
           <>
             <ActionButton
               size="outing"
-              onClick={() => dispatch({ type: "goOut", at: new Date() })}
+              onClick={onGoOut}
             >
               外　出
             </ActionButton>
             <ActionButton
               size="clockOut"
-              onClick={() => dispatch({ type: "clockOut", at: new Date() })}
+              onClick={onClockOut}
             >
               退　勤
             </ActionButton>
@@ -109,9 +112,7 @@ export function ClockActionButtons({
         ) : null}
 
         {status === "away2" ? (
-          <ActionButton
-            onClick={() => dispatch({ type: "returnBack", at: new Date() })}
-          >
+          <ActionButton onClick={onReturnBack}>
             外出戻り
           </ActionButton>
         ) : null}
@@ -120,13 +121,13 @@ export function ClockActionButtons({
           <>
             <ActionButton
               size="outing"
-              onClick={() => dispatch({ type: "goOut", at: new Date() })}
+              onClick={onGoOut}
             >
               外　出
             </ActionButton>
             <ActionButton
               size="clockOut"
-              onClick={() => dispatch({ type: "clockOut", at: new Date() })}
+              onClick={onClockOut}
             >
               退　勤
             </ActionButton>
@@ -134,18 +135,13 @@ export function ClockActionButtons({
         ) : null}
 
         {status === "away3" ? (
-          <ActionButton
-            onClick={() => dispatch({ type: "returnBack", at: new Date() })}
-          >
+          <ActionButton onClick={onReturnBack}>
             外出戻り
           </ActionButton>
         ) : null}
 
         {status === "workingAfterOuting3" ? (
-          <ActionButton
-            size="clockOut"
-            onClick={() => dispatch({ type: "clockOut", at: new Date() })}
-          >
+          <ActionButton size="clockOut" onClick={onClockOut}>
             退　勤
           </ActionButton>
         ) : null}
