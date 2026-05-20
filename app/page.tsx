@@ -549,9 +549,6 @@ function StampCompleteModal({
       buttonText: "text-blue-700",
     },
   }[modal.variant];
-  const actionLabelColorClass =
-    modal.variant === "outing" ? "text-zinc-950" : colorClass.text;
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-700/60 p-3 [font-family:'MS_Gothic','ＭＳ_ゴシック',monospace] sm:p-6"
@@ -578,7 +575,7 @@ function StampCompleteModal({
             {modal.employeeName}さんの打刻を行いました。
           </p>
           <p
-            className={`${actionLabelColorClass} mt-7 text-4xl font-bold tracking-normal sm:mt-9 sm:text-6xl`}
+            className={`${colorClass.text} mt-7 text-4xl font-bold tracking-normal sm:mt-9 sm:text-6xl`}
           >
             {formatModalActionLabel(modal.actionLabel)}
           </p>
@@ -645,7 +642,6 @@ function ClockActionButtons({
 
         {status === "away1" ? (
           <ActionButton
-            tone="primary"
             onClick={() => dispatch({ type: "returnBack", at: new Date() })}
           >
             外出戻り1
@@ -671,7 +667,6 @@ function ClockActionButtons({
 
         {status === "away2" ? (
           <ActionButton
-            tone="primary"
             onClick={() => dispatch({ type: "returnBack", at: new Date() })}
           >
             外出戻り2
@@ -697,7 +692,6 @@ function ClockActionButtons({
 
         {status === "away3" ? (
           <ActionButton
-            tone="primary"
             onClick={() => dispatch({ type: "returnBack", at: new Date() })}
           >
             外出戻り3
