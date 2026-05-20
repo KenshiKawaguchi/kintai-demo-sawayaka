@@ -580,7 +580,7 @@ function StampCompleteModal({
             {formatModalActionLabel(modal.actionLabel)}
           </p>
           <p
-            className={`${colorClass.text} mt-5 [font-family:var(--font-clock),'MS_Gothic','ＭＳ_ゴシック',monospace] text-6xl font-semibold [font-variant-numeric:tabular-nums] sm:text-8xl`}
+            className={`${colorClass.text} mt-5 [font-family:var(--font-popup-time),'Arial_Narrow','Roboto_Condensed',Arial,sans-serif] text-6xl font-bold leading-none [font-variant-numeric:tabular-nums] sm:text-8xl`}
           >
             {modal.time}
           </p>
