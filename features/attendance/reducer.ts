@@ -69,6 +69,8 @@ function upsertRecord(
     id,
     employeeCode,
     employeeName,
+    storeCode: "",
+    storeName: "",
     date: today,
     outings: [],
   };

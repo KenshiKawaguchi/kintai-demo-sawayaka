@@ -13,6 +13,13 @@ type EmployeeRow = {
   employee_code: string;
   name: string;
   active: boolean;
+  stores?: StoreRow | StoreRow[] | null;
+};
+
+type StoreRow = {
+  id: string;
+  store_code: string;
+  name: string;
 };
 
 type AttendanceRecordRow = {
@@ -42,6 +49,8 @@ export type PunchAttendanceResult = {
     id: string;
     employeeCode: string;
     name: string;
+    storeCode: string;
+    storeName: string;
   };
   record: AttendanceRecordRow;
   outings: AttendanceOutingRow[];
@@ -56,6 +65,8 @@ export type AttendanceSnapshotResult = {
     id: string;
     employeeCode: string;
     name: string;
+    storeCode: string;
+    storeName: string;
   };
   record: AttendanceRecordRow | null;
   outings: AttendanceOutingRow[];
@@ -66,6 +77,8 @@ export type MonthlyAttendanceResult = {
     id: string;
     employeeCode: string;
     name: string;
+    storeCode: string;
+    storeName: string;
   };
   records: {
     record: AttendanceRecordRow;
@@ -91,6 +104,14 @@ function assertKnownEmployee(employee: EmployeeRow | null) {
   if (!employee || !employee.active) {
     throw new AttendanceRepositoryError("従業員コードが登録されていません。", 404);
   }
+}
+
+function employeeStore(employee: EmployeeRow) {
+  const store = Array.isArray(employee.stores) ? employee.stores[0] : employee.stores;
+  return {
+    storeCode: store?.store_code ?? "",
+    storeName: store?.name ?? "",
+  };
 }
 
 async function getCurrentOutings(
@@ -134,7 +155,7 @@ export async function getAttendanceSnapshot(
 ): Promise<AttendanceSnapshotResult> {
   const { data: employee, error: employeeError } = await supabase
     .from("employees")
-    .select("id, employee_code, name, active")
+    .select("id, employee_code, name, active, stores ( id, store_code, name )")
     .eq("employee_code", employeeCode)
     .maybeSingle();
 
@@ -142,6 +163,7 @@ export async function getAttendanceSnapshot(
   assertKnownEmployee(employee as EmployeeRow | null);
 
   const typedEmployee = employee as EmployeeRow;
+  const store = employeeStore(typedEmployee);
   const { data: record, error: recordError } = await supabase
     .from("attendance_records")
     .select("*")
@@ -159,6 +181,8 @@ export async function getAttendanceSnapshot(
       id: typedEmployee.id,
       employeeCode: typedEmployee.employee_code,
       name: typedEmployee.name,
+      storeCode: store.storeCode,
+      storeName: store.storeName,
     },
     record: typedRecord,
     outings,
@@ -177,7 +201,7 @@ export async function getMonthlyAttendance(
 ): Promise<MonthlyAttendanceResult> {
   const { data: employee, error: employeeError } = await supabase
     .from("employees")
-    .select("id, employee_code, name, active")
+    .select("id, employee_code, name, active, stores ( id, store_code, name )")
     .eq("employee_code", employeeCode)
     .maybeSingle();
 
@@ -185,6 +209,7 @@ export async function getMonthlyAttendance(
   assertKnownEmployee(employee as EmployeeRow | null);
 
   const typedEmployee = employee as EmployeeRow;
+  const store = employeeStore(typedEmployee);
   const [year, monthNumber] = month.split("-").map(Number);
   const startDate = `${month}-01`;
   const endDate = `${month}-${String(new Date(year, monthNumber, 0).getDate()).padStart(2, "0")}`;
@@ -218,6 +243,8 @@ export async function getMonthlyAttendance(
       id: typedEmployee.id,
       employeeCode: typedEmployee.employee_code,
       name: typedEmployee.name,
+      storeCode: store.storeCode,
+      storeName: store.storeName,
     },
     records: typedRecords.map((record) => ({
       record,
@@ -237,7 +264,7 @@ export async function punchAttendance(
 
   const { data: employee, error: employeeError } = await supabase
     .from("employees")
-    .select("id, employee_code, name, active")
+    .select("id, employee_code, name, active, stores ( id, store_code, name )")
     .eq("employee_code", input.employeeCode)
     .maybeSingle();
 
@@ -245,6 +272,7 @@ export async function punchAttendance(
   assertKnownEmployee(employee as EmployeeRow | null);
 
   const typedEmployee = employee as EmployeeRow;
+  const store = employeeStore(typedEmployee);
   const { data: upsertedRecord, error: upsertRecordError } = await supabase
     .from("attendance_records")
     .upsert(
@@ -351,6 +379,8 @@ export async function punchAttendance(
       id: typedEmployee.id,
       employeeCode: typedEmployee.employee_code,
       name: typedEmployee.name,
+      storeCode: store.storeCode,
+      storeName: store.storeName,
     },
     record,
     outings,

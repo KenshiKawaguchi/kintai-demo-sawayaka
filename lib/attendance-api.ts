@@ -10,6 +10,8 @@ type PunchAttendanceResponse = {
       id: string;
       employeeCode: string;
       name: string;
+      storeCode: string;
+      storeName: string;
     };
     record: {
       id: string;
@@ -36,6 +38,8 @@ type AttendanceSnapshotResponse = {
       id: string;
       employeeCode: string;
       name: string;
+      storeCode: string;
+      storeName: string;
     };
     record: {
       id: string;
@@ -62,6 +66,8 @@ type MonthlyAttendanceResponse = {
       id: string;
       employeeCode: string;
       name: string;
+      storeCode: string;
+      storeName: string;
     };
     records: {
       record: NonNullable<AttendanceSnapshotResponse["data"]>["record"];
@@ -157,6 +163,8 @@ export function toAttendanceRecord(data: {
   employee: {
     employeeCode: string;
     name: string;
+    storeCode: string;
+    storeName: string;
   };
   record: NonNullable<AttendanceSnapshotResponse["data"]>["record"];
   outings: NonNullable<AttendanceSnapshotResponse["data"]>["outings"];
@@ -167,6 +175,8 @@ export function toAttendanceRecord(data: {
     id: `${data.record.work_date}-${data.employee.employeeCode}`,
     employeeCode: data.employee.employeeCode,
     employeeName: data.employee.name,
+    storeCode: data.employee.storeCode,
+    storeName: data.employee.storeName,
     date: data.record.work_date,
     clockIn: data.record.clock_in_at ?? undefined,
     outings: data.outings.map((outing) => ({

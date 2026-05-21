@@ -5,6 +5,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type Store = {
   id: string;
+  store_code: string;
   name: string;
 };
 
@@ -30,7 +31,7 @@ const buttonClass =
 
 function storeName(employee: Employee) {
   const store = Array.isArray(employee.stores) ? employee.stores[0] : employee.stores;
-  return store?.name ?? "";
+  return store ? `${store.store_code} ${store.name}` : "";
 }
 
 async function readJson<T>(response: Response) {
@@ -50,7 +51,6 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [stores, setStores] = useState<Store[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [newStoreName, setNewStoreName] = useState("");
   const [employeeForm, setEmployeeForm] = useState({
     id: "",
     storeId: "",
@@ -129,22 +129,6 @@ export default function AdminPage() {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
     setMessage("");
-  }
-
-  async function handleCreateStore(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    try {
-      const store = await fetch("/api/admin/stores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newStoreName }),
-      }).then((response) => readJson<Store>(response));
-      setStores((current) => [...current, store].sort((a, b) => a.name.localeCompare(b.name)));
-      setNewStoreName("");
-      setMessage("店舗を追加しました。");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "店舗の追加に失敗しました。");
-    }
   }
 
   async function handleSaveEmployee(event: FormEvent<HTMLFormElement>) {
@@ -237,7 +221,7 @@ export default function AdminPage() {
         <header className="flex flex-col gap-3 border border-zinc-400 bg-white p-4 shadow sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold">管理者画面</h1>
-            <p className="mt-1 text-sm text-zinc-600">店舗と従業員情報を管理します。</p>
+            <p className="mt-1 text-sm text-zinc-600">従業員情報を管理します。</p>
           </div>
           <button className={buttonClass} type="button" onClick={handleLogout}>
             ログアウト
@@ -250,28 +234,7 @@ export default function AdminPage() {
           </p>
         ) : null}
 
-        <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-          <form
-            className="border border-zinc-400 bg-white p-4 shadow"
-            onSubmit={handleCreateStore}
-          >
-            <h2 className="text-xl font-bold">店舗追加</h2>
-            <div className="mt-4 grid gap-3">
-              <label className="grid gap-2">
-                <span className="font-semibold">店舗名</span>
-                <input
-                  className={inputClass}
-                  value={newStoreName}
-                  onChange={(event) => setNewStoreName(event.target.value)}
-                  required
-                />
-              </label>
-              <button className={buttonClass} type="submit">
-                店舗を追加
-              </button>
-            </div>
-          </form>
-
+        <section className="grid gap-5">
           <form
             className="border border-zinc-400 bg-white p-4 shadow"
             onSubmit={handleSaveEmployee}
@@ -296,7 +259,7 @@ export default function AdminPage() {
                   <option value="">選択してください</option>
                   {stores.map((store) => (
                     <option key={store.id} value={store.id}>
-                      {store.name}
+                      {store.store_code} {store.name}
                     </option>
                   ))}
                 </select>

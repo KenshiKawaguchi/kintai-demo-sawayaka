@@ -2,6 +2,7 @@ create extension if not exists pgcrypto;
 
 create table if not exists public.stores (
   id uuid primary key default gen_random_uuid(),
+  store_code text not null unique check (store_code ~ '^[0-9]{3}$'),
   name text not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -83,6 +84,43 @@ create index if not exists attendance_outings_record_idx
 create index if not exists attendance_events_record_idx
   on public.attendance_events(attendance_record_id, occurred_at);
 
-insert into public.stores (name)
-values ('浜松和合店')
-on conflict do nothing;
+insert into public.stores (store_code, name)
+values
+  ('001', '菊川本店'),
+  ('002', '掛川本店'),
+  ('003', '袋井本店'),
+  ('004', '磐田本店'),
+  ('005', '浜松和合店'),
+  ('006', '細江本店'),
+  ('007', '豊田店'),
+  ('008', '焼津店'),
+  ('009', '浜松富塚店'),
+  ('010', '吉田店'),
+  ('011', '浜松有玉店'),
+  ('012', '浜松白羽店'),
+  ('013', '藤枝築地店'),
+  ('014', '浜松高塚店'),
+  ('015', '浜北店'),
+  ('016', '静岡インター店'),
+  ('017', '富士鷹岡店'),
+  ('018', '静岡池田店'),
+  ('019', '島田店'),
+  ('020', '掛川インター店'),
+  ('021', '富士錦店'),
+  ('022', '静岡瀬名川店'),
+  ('023', '浜松篠ケ瀬店'),
+  ('024', '浜松鴨江店'),
+  ('025', '御殿場インター店'),
+  ('026', '長泉店'),
+  ('027', '沼津学園通り店'),
+  ('028', '函南店'),
+  ('029', '浜松遠鉄店'),
+  ('030', '御殿場プレミアム・アウトレット店'),
+  ('031', 'イオンモール浜松市野店'),
+  ('032', '湖西浜名湖店'),
+  ('033', '浜松西インター店'),
+  ('034', 'ベイドリーム清水店')
+on conflict (store_code)
+do update set
+  name = excluded.name,
+  updated_at = now();

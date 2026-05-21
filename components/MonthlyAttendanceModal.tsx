@@ -1,4 +1,3 @@
-import { STORE_NAME } from "@/features/attendance/constants";
 import {
   displayDuration,
   displayTime,
@@ -94,7 +93,7 @@ export function MonthlyAttendanceModal({
                   return (
                     <tr key={date} className="h-9 bg-[#eeeeee]">
                       <td className="border border-zinc-500 px-3 text-left">
-                        {hasRecord ? `206 ${STORE_NAME}` : ""}
+                        {hasRecord ? `${record?.storeCode} ${record?.storeName}`.trim() : ""}
                       </td>
                       <td className="border border-zinc-500 px-3">
                         <SlashDate value={date} />

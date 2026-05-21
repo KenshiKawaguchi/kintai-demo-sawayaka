@@ -18,6 +18,8 @@ export type AttendanceRecord = {
   id: string;
   employeeCode: string;
   employeeName: string;
+  storeCode: string;
+  storeName: string;
   date: string;
   clockIn?: string;
   outings: Outing[];

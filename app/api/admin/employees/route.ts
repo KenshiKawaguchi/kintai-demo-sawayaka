@@ -36,6 +36,7 @@ function employeeSelect() {
     updated_at,
     stores (
       id,
+      store_code,
       name
     )
   `;
