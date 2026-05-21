@@ -5,9 +5,9 @@ import { ClockActionButtons } from "@/components/ActionButtons";
 import { ClockPanel } from "@/components/ClockPanel";
 import { DailyStoreAttendanceModal } from "@/components/DailyStoreAttendanceModal";
 import { Keypad } from "@/components/Keypad";
-import { MissingPunchCheckButton } from "@/components/MissingPunchCheckButton";
 import { MonthlyAttendanceModal } from "@/components/MonthlyAttendanceModal";
 import { StampCompleteModal } from "@/components/StampModal";
+import { TodayTable } from "@/components/TodayTable";
 import { STORE_NAME } from "@/features/attendance/constants";
 import { dateKey, getWorkedMinutes, monthKey } from "@/features/attendance/date";
 import {
@@ -56,6 +56,13 @@ export default function Home() {
   const selectedMonth = state.selectedMonth || monthKey(now);
   const isMonthlyScreen = isClockScreen && state.viewMode === "monthly";
   const isDailyStoreScreen = isClockScreen && state.viewMode === "dailyStore";
+  const todayRecords = useMemo(
+    () =>
+      state.records.filter(
+        (record) => record.date === today && record.employeeCode === state.employeeCode,
+      ),
+    [state.employeeCode, state.records, today],
+  );
   const monthlyRecords = useMemo(
     () => getMonthlyRecords(state.records, state.employeeCode, selectedMonth),
     [selectedMonth, state.employeeCode, state.records],
@@ -246,10 +253,6 @@ export default function Home() {
                     {state.message}
                   </p>
                 ) : null}
-
-                <MissingPunchCheckButton
-                  onClick={() => dispatch({ type: "openDailyStore" })}
-                />
               </section>
             </div>
 
@@ -288,6 +291,11 @@ export default function Home() {
                   </p>
                 ) : null}
               </section>
+
+              <TodayTable
+                records={todayRecords}
+                onMissingPunchCheck={() => dispatch({ type: "openDailyStore" })}
+              />
             </div>
 
             <aside className="flex justify-center lg:justify-end">
