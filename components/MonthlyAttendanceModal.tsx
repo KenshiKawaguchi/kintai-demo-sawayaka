@@ -62,7 +62,7 @@ export function MonthlyAttendanceModal({
         <div className="flex min-h-0 flex-1 flex-col gap-3 px-5 pb-4 pt-4">
           <div className="min-h-0 flex-1 overflow-auto border border-zinc-500 bg-white">
             <table className="w-full min-w-[1060px] border-collapse text-center text-[15px] font-semibold text-zinc-700 sm:text-base">
-              <thead>
+              <thead className="sticky top-0 z-10">
                 <tr>
                   <th
                     colSpan={11}
@@ -129,7 +129,7 @@ export function MonthlyAttendanceModal({
                   );
                 })}
               </tbody>
-              <tfoot>
+              <tfoot className="sticky bottom-0 z-10">
                 <tr className="h-9 bg-[#5c9957] text-white">
                   <td colSpan={10} className="border border-zinc-600 px-3 font-bold">
                     期間合計
@@ -146,21 +146,21 @@ export function MonthlyAttendanceModal({
             <button
               type="button"
               onClick={onPreviousMonth}
-              className="min-h-11 rounded-none border border-zinc-400 bg-gradient-to-b from-white to-[#d4d4d4] px-5 py-2 text-base font-bold text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.25)] active:translate-y-px"
+              className="min-h-11 w-1/2 min-w-24 justify-self-center rounded-none border border-zinc-400 bg-gradient-to-b from-white to-[#d4d4d4] px-5 py-2 text-base font-bold text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.25)] active:translate-y-px"
             >
               前 月
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="min-h-11 rounded-none border border-zinc-400 bg-gradient-to-b from-white to-[#d4d4d4] px-5 py-2 text-base font-bold text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.25)] active:translate-y-px"
+              className="min-h-11 w-1/2 min-w-24 justify-self-center rounded-none border border-zinc-400 bg-gradient-to-b from-white to-[#d4d4d4] px-5 py-2 text-base font-bold text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.25)] active:translate-y-px"
             >
               閉じる
             </button>
             <button
               type="button"
               onClick={onNextMonth}
-              className="min-h-11 rounded-none border border-zinc-400 bg-gradient-to-b from-white to-[#d4d4d4] px-5 py-2 text-base font-bold text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.25)] active:translate-y-px"
+              className="min-h-11 w-1/2 min-w-24 justify-self-center rounded-none border border-zinc-400 bg-gradient-to-b from-white to-[#d4d4d4] px-5 py-2 text-base font-bold text-zinc-700 shadow-[0_2px_6px_rgba(0,0,0,0.25)] active:translate-y-px"
             >
               翌 月
             </button>
