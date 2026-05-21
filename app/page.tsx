@@ -5,6 +5,7 @@ import { ClockActionButtons } from "@/components/ActionButtons";
 import { ClockPanel } from "@/components/ClockPanel";
 import { DailyStoreAttendanceModal } from "@/components/DailyStoreAttendanceModal";
 import { Keypad } from "@/components/Keypad";
+import { MissingPunchCheckButton } from "@/components/MissingPunchCheckButton";
 import { MonthlyAttendanceModal } from "@/components/MonthlyAttendanceModal";
 import { StampCompleteModal } from "@/components/StampModal";
 import { STORE_NAME } from "@/features/attendance/constants";
@@ -245,6 +246,10 @@ export default function Home() {
                     {state.message}
                   </p>
                 ) : null}
+
+                <MissingPunchCheckButton
+                  onClick={() => dispatch({ type: "openDailyStore" })}
+                />
               </section>
             </div>
 

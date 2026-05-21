@@ -8,7 +8,6 @@ export const initialState: State = {
   isCodeSubmitted: false,
   records: [],
   message: "",
-  showTodayRecords: true,
   stampModal: null,
   viewMode: "clock",
   selectedMonth: "",
@@ -267,7 +266,6 @@ export function reducer(state: State, action: Action): State {
         }), clockOutEmployeeName),
         employeeName: clockOutEmployeeName,
         message: "退勤を記録しました。",
-        showTodayRecords: true,
         stampModal: {
           time: displayStampTime(action.at),
           actionLabel: "退勤",
@@ -310,13 +308,6 @@ export function reducer(state: State, action: Action): State {
         ...state,
         viewMode: "clock",
         message: "",
-      };
-
-    case "showTodayRecords":
-      return {
-        ...state,
-        showTodayRecords: true,
-        message: "当日の打刻を表示しています。",
       };
 
     case "closeStampModal":

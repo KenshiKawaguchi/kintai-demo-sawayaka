@@ -45,7 +45,6 @@ export type State = {
   isCodeSubmitted: boolean;
   records: AttendanceRecord[];
   message: string;
-  showTodayRecords: boolean;
   stampModal: StampModal | null;
   viewMode: ViewMode;
   selectedMonth: string;
@@ -77,5 +76,4 @@ export type Action =
   | { type: "moveMonth"; direction: -1 | 1 }
   | { type: "openDailyStore" }
   | { type: "closeDailyStore" }
-  | { type: "showTodayRecords" }
   | { type: "closeStampModal" };
