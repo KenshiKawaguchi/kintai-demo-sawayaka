@@ -28,6 +28,8 @@ const inputClass =
   "min-h-11 rounded-none border border-zinc-400 bg-white px-3 py-2 text-base outline-none focus:border-zinc-950";
 const buttonClass =
   "min-h-11 rounded-none border border-zinc-500 bg-zinc-100 px-5 py-2 text-base font-semibold shadow active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
+const dangerButtonClass =
+  "min-h-11 rounded-none border border-red-800 bg-red-700 px-5 py-2 text-base font-semibold text-white shadow active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
 
 function storeName(employee: Employee) {
   const store = Array.isArray(employee.stores) ? employee.stores[0] : employee.stores;
@@ -51,6 +53,8 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [stores, setStores] = useState<Store[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [employeeForm, setEmployeeForm] = useState({
     id: "",
     storeId: "",
@@ -163,6 +167,41 @@ export default function AdminPage() {
       setMessage(isEditing ? "従業員を更新しました。" : "従業員を追加しました。");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "従業員の保存に失敗しました。");
+    }
+  }
+
+  async function handleDeleteEmployee() {
+    if (!deleteTarget || isDeleting) return;
+
+    setIsDeleting(true);
+    setMessage("");
+    try {
+      const deleted = await fetch("/api/admin/employees", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: deleteTarget.id }),
+      }).then((response) => readJson<{ id: string }>(response));
+
+      setEmployees((current) =>
+        current.filter((employee) => employee.id !== deleted.id),
+      );
+      setEmployeeForm((current) =>
+        current.id === deleted.id
+          ? {
+              id: "",
+              storeId: stores[0]?.id || "",
+              employeeCode: "",
+              name: "",
+              active: true,
+            }
+          : current,
+      );
+      setDeleteTarget(null);
+      setMessage("従業員を削除しました。");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "従業員の削除に失敗しました。");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -369,13 +408,22 @@ export default function AdminPage() {
                         {employee.active ? "有効" : "無効"}
                       </td>
                       <td className="border border-zinc-400 px-3 py-2">
-                        <button
-                          className={buttonClass}
-                          type="button"
-                          onClick={() => startEdit(employee)}
-                        >
-                          編集
-                        </button>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            className={buttonClass}
+                            type="button"
+                            onClick={() => startEdit(employee)}
+                          >
+                            編集
+                          </button>
+                          <button
+                            className={dangerButtonClass}
+                            type="button"
+                            onClick={() => setDeleteTarget(employee)}
+                          >
+                            削除
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -391,6 +439,57 @@ export default function AdminPage() {
           </div>
         </section>
       </div>
+
+      {deleteTarget ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="従業員削除確認"
+        >
+          <section className="w-full max-w-md border border-zinc-500 bg-white p-5 shadow-xl">
+            <h2 className="text-xl font-bold">従業員削除確認</h2>
+            <p className="mt-4 font-semibold">
+              次の従業員を削除します。よろしいですか。
+            </p>
+            <dl className="mt-4 grid gap-2 border border-zinc-300 bg-zinc-50 p-3">
+              <div className="grid grid-cols-[6rem_1fr] gap-3">
+                <dt className="font-semibold">コード</dt>
+                <dd>{deleteTarget.employee_code}</dd>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] gap-3">
+                <dt className="font-semibold">氏名</dt>
+                <dd>{deleteTarget.name}</dd>
+              </div>
+              <div className="grid grid-cols-[6rem_1fr] gap-3">
+                <dt className="font-semibold">所属店舗</dt>
+                <dd>{storeName(deleteTarget)}</dd>
+              </div>
+            </dl>
+            <p className="mt-3 text-sm font-semibold text-red-700">
+              打刻履歴がある従業員は削除できません。
+            </p>
+            <div className="mt-5 flex flex-wrap justify-end gap-3">
+              <button
+                className={buttonClass}
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+              >
+                キャンセル
+              </button>
+              <button
+                className={dangerButtonClass}
+                type="button"
+                onClick={() => void handleDeleteEmployee()}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "削除中" : "削除する"}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

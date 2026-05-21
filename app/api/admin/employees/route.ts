@@ -21,6 +21,10 @@ const employeeUpdateSchema = z.object({
   active: z.boolean(),
 });
 
+const employeeDeleteSchema = z.object({
+  id: z.string().uuid(),
+});
+
 function jsonError(message: string, status: number) {
   return NextResponse.json({ ok: false, message }, { status });
 }
@@ -120,5 +124,42 @@ export async function PATCH(request: Request) {
     if (error instanceof AdminAuthError) return adminAuthErrorResponse();
     console.error(error);
     return jsonError("従業員の更新に失敗しました。", 500);
+  }
+}
+
+export async function DELETE(request: Request) {
+  const parsed = employeeDeleteSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
+    return jsonError("削除する従業員を正しく指定してください。", 400);
+  }
+
+  try {
+    await requireAdminUser(request);
+    const supabase = createSupabaseAdminClient();
+    const { count, error: countError } = await supabase
+      .from("attendance_records")
+      .select("id", { count: "exact", head: true })
+      .eq("employee_id", parsed.data.id);
+
+    if (countError) throw countError;
+    if ((count ?? 0) > 0) {
+      return jsonError(
+        "打刻履歴がある従業員は削除できません。無効にしてください。",
+        409,
+      );
+    }
+
+    const { error } = await supabase
+      .from("employees")
+      .delete()
+      .eq("id", parsed.data.id);
+
+    if (error) throw error;
+
+    return NextResponse.json({ ok: true, data: { id: parsed.data.id } });
+  } catch (error) {
+    if (error instanceof AdminAuthError) return adminAuthErrorResponse();
+    console.error(error);
+    return jsonError("従業員の削除に失敗しました。", 500);
   }
 }

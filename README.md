@@ -47,7 +47,7 @@ https://kintai-demo-sawayaka.vercel.app/admin
 - 退勤済み状態の表示
 - 管理者ログイン
 - 事前登録済み店舗マスタからの所属店舗選択
-- 従業員追加、編集、有効/無効切り替え
+- 従業員追加、編集、削除、有効/無効切り替え
 - PC、タブレット、スマートフォン向けレスポンシブ表示
 
 ## 画面構成
@@ -84,6 +84,7 @@ https://kintai-demo-sawayaka.vercel.app/admin
 - 事前登録済み店舗からの所属店舗選択
 - 従業員追加
 - 従業員編集
+- 従業員削除
 - 従業員の有効/無効切り替え
 
 ## 状態遷移
@@ -126,6 +127,7 @@ before
 - `GET /api/admin/employees`: 従業員一覧
 - `POST /api/admin/employees`: 従業員追加
 - `PATCH /api/admin/employees`: 従業員更新
+- `DELETE /api/admin/employees`: 従業員削除
 
 ## ディレクトリ構成
 
