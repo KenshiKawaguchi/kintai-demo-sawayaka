@@ -82,6 +82,7 @@ https://kintai-demo-sawayaka.vercel.app/admin
 
 - Supabase Authによる管理者ログイン
 - 事前登録済み店舗からの所属店舗選択
+- 所属店舗による従業員一覧の絞り込み
 - 従業員追加
 - 従業員編集
 - 従業員削除

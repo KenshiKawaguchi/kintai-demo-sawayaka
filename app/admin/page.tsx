@@ -53,6 +53,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [stores, setStores] = useState<Store[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedStoreFilter, setSelectedStoreFilter] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [employeeForm, setEmployeeForm] = useState({
@@ -62,6 +63,13 @@ export default function AdminPage() {
     name: "",
     active: true,
   });
+  const filteredEmployees = useMemo(
+    () =>
+      selectedStoreFilter
+        ? employees.filter((employee) => employee.store_id === selectedStoreFilter)
+        : employees,
+    [employees, selectedStoreFilter],
+  );
 
   async function loadAdminData() {
     setIsLoading(true);
@@ -107,6 +115,7 @@ export default function AdminPage() {
       } else {
         setStores([]);
         setEmployees([]);
+        setSelectedStoreFilter("");
         setIsLoading(false);
       }
     });
@@ -374,11 +383,33 @@ export default function AdminPage() {
         </section>
 
         <section className="border border-zinc-400 bg-white p-4 shadow">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-xl font-bold">従業員一覧</h2>
-            <button className={buttonClass} type="button" onClick={() => void loadAdminData()}>
-              再読込
-            </button>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-xl font-bold">従業員一覧</h2>
+              <p className="mt-1 text-sm font-semibold text-zinc-600">
+                表示件数 {filteredEmployees.length} / {employees.length}
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <label className="grid gap-2">
+                <span className="font-semibold">所属店舗で絞り込み</span>
+                <select
+                  className={inputClass}
+                  value={selectedStoreFilter}
+                  onChange={(event) => setSelectedStoreFilter(event.target.value)}
+                >
+                  <option value="">すべての店舗</option>
+                  {stores.map((store) => (
+                    <option key={store.id} value={store.id}>
+                      {store.store_code} {store.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button className={buttonClass} type="button" onClick={() => void loadAdminData()}>
+                再読込
+              </button>
+            </div>
           </div>
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-[760px] w-full border-collapse text-left">
@@ -392,8 +423,8 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {employees.length > 0 ? (
-                  employees.map((employee) => (
+                {filteredEmployees.length > 0 ? (
+                  filteredEmployees.map((employee) => (
                     <tr key={employee.id}>
                       <td className="border border-zinc-400 px-3 py-2">
                         {employee.employee_code}
@@ -430,7 +461,11 @@ export default function AdminPage() {
                 ) : (
                   <tr>
                     <td className="border border-zinc-400 px-3 py-6 text-center" colSpan={5}>
-                      {isLoading ? "読み込み中です。" : "従業員が登録されていません。"}
+                      {isLoading
+                        ? "読み込み中です。"
+                        : selectedStoreFilter
+                          ? "選択した所属店舗の従業員が登録されていません。"
+                          : "従業員が登録されていません。"}
                     </td>
                   </tr>
                 )}
