@@ -86,7 +86,6 @@ export function reducer(state: State, action: Action): State {
       return { ...state, records: action.records };
 
     case "appendDigit":
-      if (state.employeeCode.length >= 7) return state;
       return {
         ...state,
         employeeCode: `${state.employeeCode}${action.digit}`,
@@ -126,7 +125,7 @@ export function reducer(state: State, action: Action): State {
     case "setEmployeeCode":
       return {
         ...state,
-        employeeCode: action.value.replace(/\D/g, "").slice(0, 7),
+        employeeCode: action.value.replace(/\D/g, ""),
         employeeName: EMPLOYEE_NAME_PLACEHOLDER,
         isCodeSubmitted: false,
         message: "",
@@ -160,12 +159,7 @@ export function reducer(state: State, action: Action): State {
       };
 
     case "submitCode":
-      if (state.employeeCode.length !== 7) {
-        return {
-          ...state,
-          message: "従業員コードを7桁で入力してください。",
-        };
-      }
+      if (state.employeeCode.length !== 7) return state;
       return {
         ...state,
         isCodeSubmitted: true,

@@ -181,7 +181,6 @@ export default function Home() {
 
   async function handleSubmitCode() {
     if (!isCodeReady || isSubmittingCode) {
-      dispatch({ type: "submitCode" });
       return;
     }
 
@@ -258,7 +257,6 @@ export default function Home() {
 
             <div className="flex justify-center lg:justify-start">
               <Keypad
-                digitDisabled={state.employeeCode.length >= 7}
                 onDigit={(digit) => dispatch({ type: "appendDigit", digit })}
                 onBackspace={() => dispatch({ type: "clearCode" })}
                 onNext={() => void handleSubmitCode()}

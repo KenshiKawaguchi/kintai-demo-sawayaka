@@ -31,28 +31,22 @@ export function Keypad({
   onDigit,
   onBackspace,
   onNext,
-  digitDisabled,
 }: {
   onDigit: (digit: string) => void;
   onBackspace: () => void;
   onNext: () => void;
-  digitDisabled?: boolean;
 }) {
   return (
     <aside className="grid w-full max-w-[460px] grid-cols-3 gap-3 self-start sm:gap-4 lg:max-w-none">
       {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((digit) => (
-        <KeyButton
-          key={digit}
-          disabled={digitDisabled}
-          onClick={() => onDigit(String(digit))}
-        >
+        <KeyButton key={digit} onClick={() => onDigit(String(digit))}>
           {digit}
         </KeyButton>
       ))}
       <KeyButton variant="control" onClick={onBackspace}>
         C
       </KeyButton>
-      <KeyButton disabled={digitDisabled} onClick={() => onDigit("0")}>
+      <KeyButton onClick={() => onDigit("0")}>
         0
       </KeyButton>
       <KeyButton variant="control" onClick={onNext}>
