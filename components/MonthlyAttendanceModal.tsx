@@ -122,7 +122,7 @@ export function MonthlyAttendanceModal({
                       <td className="border border-zinc-500 px-3">
                         {displayTime(record?.outings[2]?.back)}
                       </td>
-                      <td className="border border-zinc-500 px-3 text-right italic">
+                      <td className="border border-zinc-500 px-3 text-right">
                         {displayDuration(record)}
                       </td>
                     </tr>

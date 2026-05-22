@@ -127,7 +127,7 @@ export function DailyStoreAttendanceModal({
                         <td className="border border-zinc-500 px-3">
                           {displayTime(row.outings[2]?.back)}
                         </td>
-                        <td className="border border-zinc-500 px-3 text-right italic">
+                        <td className="border border-zinc-500 px-3 text-right">
                           {displayDuration(row.hasRecord ? row : undefined)}
                         </td>
                       </tr>

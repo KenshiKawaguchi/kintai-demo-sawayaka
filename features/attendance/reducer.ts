@@ -279,6 +279,7 @@ export function reducer(state: State, action: Action): State {
     case "closeMonthly":
       return {
         ...state,
+        selectedMonth: "",
         viewMode: "clock",
         message: "",
       };
